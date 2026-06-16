@@ -27,7 +27,7 @@ export default function Workshop2Page() {
 
           <div className="register-page__form-wrapper">
             <RegistrationForm
-              tableName="industry_visit_registrations"
+              eventSlug="workshop-2"
               title="Workshop 02 Registration"
               subtitle="Fill in your details to register for the Advanced Lab Workshop"
               eventPrefix="I"

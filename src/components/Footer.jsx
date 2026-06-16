@@ -1,5 +1,5 @@
 import React from 'react';
-import { WavyDNADivider, CellSpellLogo, GitHubIcon, TwitterIcon, InstagramIcon } from './SVGIcons';
+import { WavyDNADivider, CellSpellLogo, InstagramIcon, FacebookIcon, LinkedInIcon } from './SVGIcons';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -22,19 +22,19 @@ export default function Footer() {
           </p>
 
           <div className="footer-socials">
-            <a href="#" className="social-link" aria-label="GitHub" id="footer-github">
-              <GitHubIcon size={18} />
+            <a href="https://www.facebook.com/share/19AiX5Nnwx/?mibextid=wwXIfr" className="social-link" aria-label="Facebook" id="footer-facebook" target="_blank" rel="noopener noreferrer">
+              <FacebookIcon size={18} />
             </a>
-            <a href="#" className="social-link" aria-label="Twitter" id="footer-twitter">
-              <TwitterIcon size={18} />
-            </a>
-            <a href="#" className="social-link" aria-label="Instagram" id="footer-instagram">
+            <a href="https://www.instagram.com/embs_sliit?igsh=MTlia3o1ZG55MG1ydg==" className="social-link" aria-label="Instagram" id="footer-instagram" target="_blank" rel="noopener noreferrer">
               <InstagramIcon size={18} />
+            </a>
+            <a href="https://www.linkedin.com/in/embs-ieee-a152432b1" className="social-link" aria-label="LinkedIn" id="footer-linkedin" target="_blank" rel="noopener noreferrer">
+              <LinkedInIcon size={18} />
             </a>
           </div>
 
           <p className="footer-text">
-            Made with <span className="heart">♥</span> · © {year} Cell Spell 2.0
+            Made by Kaveesha Induwara · © {year} Cell Spell 2.0
           </p>
         </div>
       </div>

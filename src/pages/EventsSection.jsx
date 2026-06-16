@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollReveal } from '../components/useScrollReveal';
-import { CodeIcon, FactoryIcon, PotionFlask } from '../components/SVGIcons';
+import { CodeIcon, FactoryIcon, PotionFlask, Sparkles, LockIcon } from '../components/SVGIcons';
 
 const EVENTS = [
   {
@@ -21,6 +21,7 @@ const EVENTS = [
     ],
     ctaText: 'Register Now',
     ctaLink: '/register/workshop-1',
+    ctaIcon: <Sparkles size={14} />,
     disabled: false,
   },
   {
@@ -40,6 +41,7 @@ const EVENTS = [
     ],
     ctaText: 'Register Now',
     ctaLink: '/register/workshop-2',
+    ctaIcon: <Sparkles size={14} />,
     disabled: false,
   },
   {
@@ -59,6 +61,7 @@ const EVENTS = [
     ],
     ctaText: 'Coming Soon',
     ctaLink: '/register/industry-visit',
+    ctaIcon: <LockIcon size={14} />,
     disabled: true,
   },
 ];
@@ -126,7 +129,7 @@ function EventCard({ event, delay }) {
         id={`event-cta-${event.id}`}
         {...wrapperProps}
       >
-        {event.disabled ? '🔒 ' : '✨ '}
+        {event.ctaIcon}
         {event.ctaText}
       </CardWrapper>
     </div>

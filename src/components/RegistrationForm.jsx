@@ -9,20 +9,22 @@ import {
   GraduationIcon,
   FieldTickIcon,
   FieldCrossIcon,
+  Sparkles,
 } from './SVGIcons';
 
 // Validation helpers
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 const validatePhone = (phone) => /^\d{10}$/.test(phone);
 const validateNIC = (nic) => /^\d{12}$/.test(nic);
-const validateName = (name) => /^[a-zA-Z\s.'\-]+$/.test(name.trim()) && name.trim().length >= 2;
+const validateName = (name) => /^[a-zA-Z\s.'\\-]+$/.test(name.trim()) && name.trim().length >= 2;
 
 const INITIAL_FORM = {
   full_name: '',
+  sliit_reg_number: '',
   email: '',
   telephone: '',
   nic_number: '',
-  faculty: '',
+  faculty: 'Faculty of Humanities and Science',
 };
 
 const FACULTIES = [
@@ -32,12 +34,34 @@ const FACULTIES = [
   'Business School',
 ];
 
+// Inline SVG icons for form messages (replacing emoji)
+function AlertIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+      <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  );
+}
+
 /**
  * Reusable registration form with floating labels, SVG field icons,
  * animated validation feedback, and redirect to success page.
+ *
+ * Uses the secure `submit_registration` RPC instead of direct table insert.
  */
 export default function RegistrationForm({
-  tableName,
+  eventSlug,
   title,
   subtitle,
   eventPrefix = 'W',
@@ -76,6 +100,7 @@ export default function RegistrationForm({
   const fieldStatus = useMemo(() => {
     const s = {};
     if (touched.full_name) s.full_name = validateName(form.full_name) ? 'valid' : 'invalid';
+    if (touched.sliit_reg_number) s.sliit_reg_number = form.sliit_reg_number.trim().length > 0 ? 'valid' : 'invalid';
     if (touched.email) s.email = validateEmail(form.email.trim()) ? 'valid' : 'invalid';
     if (touched.telephone) s.telephone = validatePhone(form.telephone.trim()) ? 'valid' : 'invalid';
     if (touched.nic_number) s.nic_number = validateNIC(form.nic_number.trim()) ? 'valid' : 'invalid';
@@ -89,6 +114,9 @@ export default function RegistrationForm({
       errs.full_name = 'Full name is required';
     } else if (!validateName(form.full_name)) {
       errs.full_name = 'Name must contain only letters';
+    }
+    if (!form.sliit_reg_number.trim()) {
+      errs.sliit_reg_number = 'SLIIT Registration Number is required';
     }
     if (!form.email.trim()) {
       errs.email = 'Email is required';
@@ -110,6 +138,7 @@ export default function RegistrationForm({
     // Mark all fields as touched on submit
     setTouched({
       full_name: true,
+      sliit_reg_number: true,
       email: true,
       telephone: true,
       nic_number: true,
@@ -127,49 +156,38 @@ export default function RegistrationForm({
       setSubmitting(true);
 
       try {
-        const payload = {
-          full_name: form.full_name.trim(),
-          email: form.email.trim().toLowerCase(),
-          telephone: form.telephone.trim(),
-          nic_number: form.nic_number.trim(),
-          faculty: form.faculty,
-        };
-
-        const { data, error } = await supabase
-          .from(tableName)
-          .insert([payload])
-          .select('registration_id')
-          .single();
+        // Call secure RPC instead of direct table insert
+        const { data, error } = await supabase.rpc('submit_registration', {
+          p_event_slug: eventSlug,
+          p_full_name: form.full_name.trim(),
+          p_sliit_reg_number: form.sliit_reg_number.trim().toUpperCase(),
+          p_email: form.email.trim().toLowerCase(),
+          p_telephone: form.telephone.trim(),
+          p_nic_number: form.nic_number.trim(),
+          p_faculty: form.faculty,
+        });
 
         if (error) {
-          if (error.code === '23505') {
-            if (error.message.includes('nic_number')) {
-              setMessage({
-                type: 'error',
-                text: 'This NIC Number has already been registered!',
-              });
-            } else {
-              setMessage({
-                type: 'error',
-                text: 'You have already registered for this event.',
-              });
-            }
-          } else if (error.code === '23514') {
-            setMessage({
-              type: 'error',
-              text: 'Please check your input values and try again.',
-            });
-          } else {
-            setMessage({
-              type: 'error',
-              text: error.message || 'Something went wrong. Please try again.',
-            });
-          }
-        } else {
+          setMessage({
+            type: 'error',
+            text: error.message || 'Something went wrong. Please try again.',
+          });
+        } else if (data && !data.success) {
+          // RPC returned a validation/duplicate error
+          setMessage({
+            type: 'error',
+            text: data.error || 'Registration failed. Please try again.',
+          });
+        } else if (data && data.success) {
+          const regId = data.registration_id || `R${eventPrefix}001`;
+
+          // Store in sessionStorage for refresh resilience
+          sessionStorage.setItem('lastRegistrationRef', regId);
+
           // Navigate to success page with registration data
-          navigate('/success', {
+          navigate(`/success?ref=${encodeURIComponent(regId)}`, {
             state: {
-              registrationId: data?.registration_id || `R${eventPrefix}001`,
+              registrationId: regId,
               fullName: form.full_name.trim(),
               eventName,
               eventDate,
@@ -177,6 +195,11 @@ export default function RegistrationForm({
               eventDetails,
               eventPrefix,
             },
+          });
+        } else {
+          setMessage({
+            type: 'error',
+            text: 'Unexpected response. Please try again.',
           });
         }
       } catch {
@@ -188,7 +211,7 @@ export default function RegistrationForm({
         setSubmitting(false);
       }
     },
-    [form, tableName, validate, navigate, eventPrefix, eventName, eventDate, eventVenue, eventDetails]
+    [form, eventSlug, validate, navigate, eventPrefix, eventName, eventDate, eventVenue, eventDetails]
   );
 
   // Helper to render validation icon
@@ -203,7 +226,7 @@ export default function RegistrationForm({
   };
 
   return (
-    <div className="glass-form-card" id={`form-${tableName}`}>
+    <div className="glass-form-card" id={`form-${eventSlug}`}>
       {/* Top accent line */}
       <div className="glass-form-card__accent" />
 
@@ -214,7 +237,7 @@ export default function RegistrationForm({
 
       {message && (
         <div className={`form-message ${message.type}`} role="alert">
-          <span>{message.type === 'success' ? '✅' : '⚠️'}</span>
+          {message.type === 'success' ? <CheckCircleIcon /> : <AlertIcon />}
           <span>{message.text}</span>
         </div>
       )}
@@ -227,7 +250,7 @@ export default function RegistrationForm({
           </div>
           <div className="field-input-wrapper">
             <input
-              id={`${tableName}-full_name`}
+              id={`${eventSlug}-full_name`}
               name="full_name"
               type="text"
               className="floating-input"
@@ -237,12 +260,36 @@ export default function RegistrationForm({
               onBlur={handleBlur}
               autoComplete="name"
             />
-            <label htmlFor={`${tableName}-full_name`} className="floating-label">
+            <label htmlFor={`${eventSlug}-full_name`} className="floating-label">
               Full Name <span className="required">*</span>
             </label>
             {renderValidationIcon('full_name')}
           </div>
-          {errors.full_name && <div className="field-error">⚠ {errors.full_name}</div>}
+          {errors.full_name && <div className="field-error"><AlertIcon size={12} /> {errors.full_name}</div>}
+        </div>
+
+        {/* SLIIT Registration Number */}
+        <div className={`floating-field ${errors.sliit_reg_number ? 'has-error' : ''}`}>
+          <div className="field-icon-wrapper">
+            <IDCardIcon />
+          </div>
+          <div className="field-input-wrapper">
+            <input
+              id={`${eventSlug}-sliit_reg_number`}
+              name="sliit_reg_number"
+              type="text"
+              className="floating-input"
+              placeholder=" "
+              value={form.sliit_reg_number}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            <label htmlFor={`${eventSlug}-sliit_reg_number`} className="floating-label">
+              SLIIT Registration Number (HS24000000) <span className="required">*</span>
+            </label>
+            {renderValidationIcon('sliit_reg_number')}
+          </div>
+          {errors.sliit_reg_number && <div className="field-error"><AlertIcon size={12} /> {errors.sliit_reg_number}</div>}
         </div>
 
         {/* Email */}
@@ -252,7 +299,7 @@ export default function RegistrationForm({
           </div>
           <div className="field-input-wrapper">
             <input
-              id={`${tableName}-email`}
+              id={`${eventSlug}-email`}
               name="email"
               type="email"
               className="floating-input"
@@ -262,12 +309,12 @@ export default function RegistrationForm({
               onBlur={handleBlur}
               autoComplete="email"
             />
-            <label htmlFor={`${tableName}-email`} className="floating-label">
+            <label htmlFor={`${eventSlug}-email`} className="floating-label">
               Email <span className="required">*</span>
             </label>
             {renderValidationIcon('email')}
           </div>
-          {errors.email && <div className="field-error">⚠ {errors.email}</div>}
+          {errors.email && <div className="field-error"><AlertIcon size={12} /> {errors.email}</div>}
         </div>
 
         {/* Telephone */}
@@ -277,7 +324,7 @@ export default function RegistrationForm({
           </div>
           <div className="field-input-wrapper">
             <input
-              id={`${tableName}-telephone`}
+              id={`${eventSlug}-telephone`}
               name="telephone"
               type="tel"
               className="floating-input"
@@ -288,12 +335,12 @@ export default function RegistrationForm({
               autoComplete="tel"
               maxLength={10}
             />
-            <label htmlFor={`${tableName}-telephone`} className="floating-label">
-              Telephone (10 digits) <span className="required">*</span>
+            <label htmlFor={`${eventSlug}-telephone`} className="floating-label">
+              Telephone (WhatsApp) <span className="required">*</span>
             </label>
             {renderValidationIcon('telephone')}
           </div>
-          {errors.telephone && <div className="field-error">⚠ {errors.telephone}</div>}
+          {errors.telephone && <div className="field-error"><AlertIcon size={12} /> {errors.telephone}</div>}
         </div>
 
         {/* NIC Number */}
@@ -303,7 +350,7 @@ export default function RegistrationForm({
           </div>
           <div className="field-input-wrapper">
             <input
-              id={`${tableName}-nic_number`}
+              id={`${eventSlug}-nic_number`}
               name="nic_number"
               type="text"
               className="floating-input"
@@ -313,12 +360,12 @@ export default function RegistrationForm({
               onBlur={handleBlur}
               maxLength={12}
             />
-            <label htmlFor={`${tableName}-nic_number`} className="floating-label">
+            <label htmlFor={`${eventSlug}-nic_number`} className="floating-label">
               NIC Number (12 digits) <span className="required">*</span>
             </label>
             {renderValidationIcon('nic_number')}
           </div>
-          {errors.nic_number && <div className="field-error">⚠ {errors.nic_number}</div>}
+          {errors.nic_number && <div className="field-error"><AlertIcon size={12} /> {errors.nic_number}</div>}
         </div>
 
         {/* Faculty */}
@@ -328,24 +375,23 @@ export default function RegistrationForm({
           </div>
           <div className="field-input-wrapper">
             <select
-              id={`${tableName}-faculty`}
+              id={`${eventSlug}-faculty`}
               name="faculty"
               className={`floating-select ${form.faculty ? 'has-value' : ''}`}
               value={form.faculty}
               onChange={handleChange}
               onBlur={handleBlur}
             >
-              <option value="">Select your faculty</option>
               {FACULTIES.map((f) => (
                 <option key={f} value={f}>{f}</option>
               ))}
             </select>
-            <label htmlFor={`${tableName}-faculty`} className="floating-label floating-label--select">
+            <label htmlFor={`${eventSlug}-faculty`} className="floating-label floating-label--select">
               Faculty <span className="required">*</span>
             </label>
             {renderValidationIcon('faculty')}
           </div>
-          {errors.faculty && <div className="field-error">⚠ {errors.faculty}</div>}
+          {errors.faculty && <div className="field-error"><AlertIcon size={12} /> {errors.faculty}</div>}
         </div>
 
         {/* Submit */}
@@ -353,7 +399,7 @@ export default function RegistrationForm({
           type="submit"
           className="btn btn-submit"
           disabled={submitting}
-          id={`${tableName}-submit-btn`}
+          id={`${eventSlug}-submit-btn`}
         >
           {submitting ? (
             <>
@@ -361,7 +407,10 @@ export default function RegistrationForm({
               Registering...
             </>
           ) : (
-            'Register Now ✨'
+            <>
+              <Sparkles size={16} />
+              Register Now
+            </>
           )}
         </button>
       </form>

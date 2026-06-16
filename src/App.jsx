@@ -9,6 +9,10 @@ import Workshop1Page from './pages/Workshop1Page';
 import Workshop2Page from './pages/Workshop2Page';
 import ComingSoonPage from './pages/ComingSoonPage';
 import SuccessPage from './pages/SuccessPage';
+import NotFoundPage from './pages/NotFoundPage';
+import AdminLoginPage from './pages/AdminLoginPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -26,23 +30,41 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [location.pathname]);
 
+  // Check if we're on an admin route (hide public chrome)
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   return (
     <>
       <LoadingScreen loading={loading} />
       <Particles />
       <div className="mist-overlay" />
       <div className="app-container">
-        <Navbar />
+        {!isAdminRoute && <Navbar />}
         <main>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/register/workshop-1" element={<Workshop1Page />} />
             <Route path="/register/workshop-2" element={<Workshop2Page />} />
             <Route path="/register/industry-visit" element={<ComingSoonPage />} />
             <Route path="/success" element={<SuccessPage />} />
+
+            {/* Admin routes (not linked in public nav) */}
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 404 catch-all */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
-        <Footer />
+        {!isAdminRoute && <Footer />}
       </div>
     </>
   );

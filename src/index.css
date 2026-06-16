@@ -831,47 +831,260 @@ input, select, textarea { font-family: inherit; outline: none; }
 }
 
 /* =============================================
-   TITLE / SALUTATION RADIO PILLS
+   ADMIN LOGIN PAGE
    ============================================= */
-.title-field .field-input-wrapper {
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+.admin-login-page {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 120px 24px 80px; text-align: center;
 }
-.title-radio-group {
-  display: flex; gap: 10px;
+.admin-login-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg); padding: 48px 40px; max-width: 440px; width: 100%;
+  margin: 0 auto; position: relative; overflow: hidden;
+  box-shadow: var(--shadow-elevated);
+  animation: formFadeIn 0.8s var(--ease-out-expo) 0.3s both;
 }
-.title-radio-input {
-  position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
+.admin-login-header { margin-bottom: 32px; }
+.admin-login-icon {
+  margin-bottom: 16px; opacity: 0.6;
+  filter: drop-shadow(0 0 15px rgba(57, 255, 20, 0.3));
 }
-.title-radio-pill {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 12px 28px; border-radius: var(--radius-full); cursor: pointer;
+.admin-login-brand {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+  color: var(--text-muted); margin-bottom: 16px;
+}
+.admin-login-title {
+  font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;
+  color: var(--text-primary); margin-bottom: 6px;
+}
+.admin-login-subtitle { font-size: 0.88rem; color: var(--text-dim); }
+.admin-login-footer { margin-top: 24px; display: flex; justify-content: center; }
+
+/* =============================================
+   ADMIN DASHBOARD
+   ============================================= */
+.admin-dashboard {
+  min-height: 100vh; padding: 100px 0 60px;
+}
+.admin-loading {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh;
+}
+
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 36px; flex-wrap: wrap; gap: 16px;
+}
+.admin-header-brand {
+  display: flex; align-items: center; gap: 14px;
+}
+.admin-header-title {
+  font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
+  color: var(--text-primary);
+}
+.admin-header-email {
+  font-size: 0.82rem; color: var(--text-dim); margin-top: 2px;
+}
+.admin-signout-btn { font-size: 0.85rem; padding: 10px 20px; }
+
+.admin-stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px; margin-bottom: 32px;
+}
+.admin-stat-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md); padding: 24px; text-align: center;
+  transition: all 0.3s var(--ease-out-expo);
+}
+.admin-stat-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: var(--shadow-glow);
+}
+.admin-stat-card--accent {
+  border-color: var(--border-glow);
+  background: rgba(57, 255, 20, 0.04);
+}
+.admin-stat-label {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); font-weight: 600; margin-bottom: 8px;
+}
+.admin-stat-value {
+  font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+  color: var(--neon-green); text-shadow: 0 0 15px var(--neon-glow);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.admin-faculty-grid {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md); padding: 24px; margin-bottom: 32px;
+}
+.admin-section-title {
+  font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+  color: var(--text-primary); margin-bottom: 16px;
+}
+.admin-faculty-bars { display: flex; flex-direction: column; gap: 10px; }
+.faculty-bar-row {
+  display: grid; grid-template-columns: 180px 1fr 50px;
+  align-items: center; gap: 12px;
+}
+.faculty-bar-label {
+  font-size: 0.82rem; color: var(--text-secondary); font-weight: 500;
+  text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.faculty-bar-track {
+  height: 8px; background: rgba(57, 255, 20, 0.06); border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.faculty-bar-fill {
+  height: 100%; border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--green-600), var(--neon-green));
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+  transition: width 0.8s var(--ease-out-expo);
+  min-width: 4px;
+}
+.faculty-bar-count {
+  font-family: var(--font-display); font-size: 0.88rem; font-weight: 700;
+  color: var(--neon-green); text-align: right;
+}
+
+.admin-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.admin-controls-left {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1;
+}
+.admin-search-input {
+  padding: 10px 16px; border-radius: var(--radius-sm);
   background: var(--bg-input); border: 1.5px solid var(--border-subtle);
-  color: var(--text-secondary); font-size: 0.95rem; font-weight: 600;
-  transition: all 0.35s var(--ease-out-expo);
-  position: relative; overflow: hidden;
-  user-select: none;
+  color: var(--text-primary); font-size: 0.88rem;
+  transition: all 0.3s var(--ease-out-expo);
+  min-width: 240px; flex: 1; max-width: 360px;
 }
-.title-radio-pill::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at center, rgba(57, 255, 20, 0.15), transparent 70%);
-  opacity: 0; transition: opacity 0.35s;
+.admin-search-input:focus {
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 3px rgba(57, 255, 20, 0.1);
 }
-.title-radio-pill:hover {
-  border-color: var(--border-glow); color: var(--neon-green);
-  background: rgba(57, 255, 20, 0.06);
+.admin-search-input::placeholder { color: var(--text-dim); }
+.admin-filter-select {
+  padding: 10px 32px 10px 14px; border-radius: var(--radius-sm);
+  background: var(--bg-input); border: 1.5px solid var(--border-subtle);
+  color: var(--text-secondary); font-size: 0.82rem; cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2366bb6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  transition: all 0.3s;
 }
-.title-radio-pill.active {
-  border-color: var(--neon-green); color: var(--neon-green);
-  background: rgba(57, 255, 20, 0.1);
-  box-shadow: 0 0 20px rgba(57, 255, 20, 0.2), inset 0 0 15px rgba(57, 255, 20, 0.05);
+.admin-filter-select:focus { border-color: var(--border-active); }
+.admin-filter-select option { background: var(--bg-dark); color: var(--text-primary); }
+.admin-export-btn { font-size: 0.85rem; padding: 10px 20px; white-space: nowrap; }
+
+.admin-table-wrapper {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md); overflow-x: auto;
+  margin-bottom: 20px;
 }
-.title-radio-pill.active::before { opacity: 1; }
-.title-radio-label { position: relative; z-index: 1; }
-.title-field-label {
-  font-size: 0.78rem; color: var(--neon-green); font-weight: 500;
-  margin-left: auto; white-space: nowrap;
+.admin-table-loading, .admin-table-empty {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 60px 24px; color: var(--text-muted); font-size: 0.92rem;
 }
-.title-field-label .required { color: var(--neon-green); }
+.admin-table {
+  width: 100%; border-collapse: collapse; font-size: 0.82rem;
+  white-space: nowrap;
+}
+.admin-table thead { border-bottom: 1px solid var(--border-subtle); }
+.admin-table th {
+  padding: 14px 16px; text-align: left; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: 0.72rem; background: rgba(57, 255, 20, 0.02);
+}
+.admin-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.admin-table tbody tr { transition: background 0.2s; }
+.admin-table tbody tr:hover { background: rgba(57, 255, 20, 0.03); }
+.admin-td-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.78rem;
+  color: var(--neon-green); letter-spacing: 0.5px;
+}
+.admin-td-faculty { font-size: 0.78rem; color: var(--text-dim); }
+.admin-td-date { font-size: 0.78rem; color: var(--text-dim); }
+
+.admin-pagination {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  padding: 8px 0 20px;
+}
+.admin-page-info { font-size: 0.82rem; color: var(--text-dim); }
+.admin-pagination .btn { font-size: 0.82rem; padding: 8px 16px; }
+
+/* =============================================
+   404 / NOT FOUND PAGE
+   ============================================= */
+.not-found-page {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 120px 24px 80px; text-align: center;
+}
+.not-found-card { max-width: 480px; margin: 0 auto; position: relative; }
+.not-found-glow {
+  position: absolute; width: 300px; height: 300px; top: 50%; left: 50%;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.06) 0%, transparent 70%);
+  animation: heroGlow 6s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.not-found-icon { margin-bottom: 24px; }
+.not-found-svg { filter: drop-shadow(0 0 20px rgba(57, 255, 20, 0.3)); }
+.not-found-ring {
+  animation: not-found-spin 20s linear infinite;
+  transform-origin: center;
+}
+.not-found-ring--inner {
+  animation-direction: reverse;
+  animation-duration: 15s;
+}
+@keyframes not-found-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.not-found-title {
+  font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800; color: var(--text-primary); margin-bottom: 16px;
+  animation: fadeInDown 0.8s var(--ease-out-expo) 0.3s both;
+}
+.not-found-subtitle {
+  font-size: 1.05rem; color: var(--text-secondary); max-width: 400px;
+  margin: 0 auto 32px; line-height: 1.65;
+  animation: fadeInDown 0.8s var(--ease-out-expo) 0.5s both;
+}
+.not-found-page .btn {
+  animation: fadeInUp 0.8s var(--ease-out-expo) 0.7s both;
+}
+
+/* Admin Responsive */
+@media (max-width: 768px) {
+  .admin-header { flex-direction: column; align-items: flex-start; }
+  .admin-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-controls { flex-direction: column; align-items: stretch; }
+  .admin-controls-left { flex-direction: column; }
+  .admin-search-input { max-width: none; min-width: auto; }
+  .faculty-bar-row { grid-template-columns: 120px 1fr 40px; }
+}
+@media (max-width: 480px) {
+  .admin-login-card { padding: 32px 24px; }
+  .admin-stats-grid { grid-template-columns: 1fr; }
+  .faculty-bar-row { grid-template-columns: 1fr; gap: 4px; }
+  .faculty-bar-label { text-align: left; }
+}
+
 
 /* =============================================
    FIELD VALIDATION ICONS (Animated Tick / Cross)

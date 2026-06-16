@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import PageTransition from '../components/PageTransition';
 import {
   AnimatedCheckmark,
@@ -9,6 +9,15 @@ import {
   AnimatedInfoIcon,
   AnimatedDoorIcon,
 } from '../components/SVGIcons';
+
+// Simple seeded PRNG for deterministic shapes
+function seededRandom(seed) {
+  let s = seed;
+  return () => {
+    s = (s * 16807 + 0) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
 
 // Count-up animation hook
 function useCountUp(target, duration = 1500, delay = 800) {
@@ -43,16 +52,17 @@ function parseRegNumber(regId) {
   return { prefix: 'RW', num: 1 };
 }
 
-// Floating geometric shapes background
+// Floating geometric shapes background — deterministic
 function FloatingShapes() {
+  const rand = seededRandom(99);
   const shapes = Array.from({ length: 12 }, (_, i) => ({
     id: i,
     type: i % 3 === 0 ? 'hexagon' : i % 3 === 1 ? 'circle' : 'diamond',
-    size: 20 + Math.random() * 40,
-    left: Math.random() * 100,
-    delay: Math.random() * 8,
-    duration: 15 + Math.random() * 20,
-    opacity: 0.03 + Math.random() * 0.06,
+    size: 20 + rand() * 40,
+    left: rand() * 100,
+    delay: rand() * 8,
+    duration: 15 + rand() * 20,
+    opacity: 0.03 + rand() * 0.06,
   }));
 
   return (
@@ -99,26 +109,46 @@ function FloatingShapes() {
 export default function SuccessPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const state = location.state;
 
-  // Redirect to home if no state (direct access)
+  // Try to recover registration reference from multiple sources
+  const refFromUrl = searchParams.get('ref');
+  const refFromStorage = typeof sessionStorage !== 'undefined'
+    ? sessionStorage.getItem('lastRegistrationRef')
+    : null;
+
+  // If we have state, store the ref for resilience
   useEffect(() => {
-    if (!state) {
+    if (state?.registrationId) {
+      sessionStorage.setItem('lastRegistrationRef', state.registrationId);
+    }
+  }, [state]);
+
+  // Determine what we can show
+  const hasFullState = !!state;
+  const registrationRef = state?.registrationId || refFromUrl || refFromStorage;
+
+  // Redirect to home only if we have absolutely nothing
+  useEffect(() => {
+    if (!hasFullState && !registrationRef) {
       navigate('/', { replace: true });
     }
-  }, [state, navigate]);
+  }, [hasFullState, registrationRef, navigate]);
 
-  if (!state) return null;
+  if (!hasFullState && !registrationRef) return null;
 
   const {
-    registrationId = 'RW001',
+    registrationId = registrationRef || 'RW001',
     fullName = 'Student',
     eventName = 'Event',
     eventDate = 'TBA',
     eventVenue = 'TBA',
     eventDetails = 'More details will be shared via email.',
     eventPrefix = 'W',
-  } = state;
+  } = state || {
+    registrationId: registrationRef,
+  };
 
   const { prefix, num } = parseRegNumber(registrationId);
 
