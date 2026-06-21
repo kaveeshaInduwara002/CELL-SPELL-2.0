@@ -1,73 +1,104 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollReveal } from '../components/useScrollReveal';
-import { CodeIcon, FactoryIcon, PotionFlask, Sparkles, LockIcon } from '../components/SVGIcons';
+import { CodeIcon, FactoryIcon, Sparkles, LockIcon, Hourglass } from '../components/SVGIcons';
+import useFormConfig from '../hooks/useFormConfig';
 
-const EVENTS = [
-  {
-    id: 'workshop-1',
-    icon: <CodeIcon size={44} />,
-    badge: 'Open',
-    badgeClass: 'badge-active',
-    title: 'Workshop 01',
-    subtitle: 'Bioinformatics Workshop',
-    description:
-      'Explore the intersection of biology and computing. Learn essential bioinformatics software, then compete in an exciting challenge to solve real biological problems using code.',
-    features: [
-      'Introduction to bioinformatics tools',
-      'Hands-on software training',
-      'Problem-solving competition',
-      'Certificates for winners',
-    ],
-    ctaText: 'Register Now',
-    ctaLink: '/register/workshop-1',
-    ctaIcon: <Sparkles size={14} />,
-    disabled: false,
-  },
-  {
-    id: 'workshop-2',
-    icon: <PotionFlask size={44} />,
-    badge: 'Open',
-    badgeClass: 'badge-active',
-    title: 'Workshop 02',
-    subtitle: 'Advanced Lab Workshop',
-    description:
-      'Delve deeper into advanced biotechnology techniques. A hands-on workshop featuring cutting-edge lab experiments and collaborative problem solving with industry experts.',
-    features: [
-      'Advanced lab techniques',
-      'Industry expert mentorship',
-      'Collaborative experiments',
-      'Exclusive lab resources',
-    ],
-    ctaText: 'Register Now',
-    ctaLink: '/register/workshop-2',
-    ctaIcon: <Sparkles size={14} />,
-    disabled: false,
-  },
-  {
-    id: 'industry-visit',
-    icon: <FactoryIcon size={44} />,
-    badge: 'Coming Soon',
-    badgeClass: 'badge-coming-soon',
-    title: 'Industry Visit',
-    subtitle: 'Physical Event',
-    description:
-      'Something magical is brewing... Get an exclusive behind-the-scenes look at leading biotech and pharmaceutical companies. Stay tuned for the reveal!',
-    features: [
-      'Details to be announced',
-      'In-person experience',
-      'Industry networking',
-      'More surprises ahead',
-    ],
-    ctaText: 'Coming Soon',
-    ctaLink: '/register/industry-visit',
-    ctaIcon: <LockIcon size={14} />,
-    disabled: true,
-  },
-];
+const getEventState = (formKey, status) => {
+  switch (status) {
+    case 'open':
+      return {
+        badge: 'Open',
+        badgeClass: 'badge-active',
+        ctaText: 'Register Now',
+        ctaIcon: <Sparkles size={14} />,
+        ctaClass: 'btn-primary',
+        disabled: false,
+      };
+    case 'coming_soon':
+      return {
+        badge: 'Coming Soon',
+        badgeClass: 'badge-coming-soon',
+        ctaText: 'Coming Soon',
+        ctaIcon: <Hourglass size={14} />,
+        ctaClass: 'btn-secondary',
+        disabled: false,
+      };
+    case 'closed':
+      return {
+        badge: 'Closed',
+        badgeClass: 'badge-closed',
+        ctaText: 'Closed',
+        ctaIcon: <LockIcon size={14} />,
+        ctaClass: 'btn-disabled',
+        disabled: true,
+      };
+    default:
+      return formKey === 'workshop'
+        ? {
+            badge: 'Open',
+            badgeClass: 'badge-active',
+            ctaText: 'Register Now',
+            ctaIcon: <Sparkles size={14} />,
+            ctaClass: 'btn-primary',
+            disabled: false,
+          }
+        : {
+            badge: 'Coming Soon',
+            badgeClass: 'badge-coming-soon',
+            ctaText: 'Coming Soon',
+            ctaIcon: <Hourglass size={14} />,
+            ctaClass: 'btn-secondary',
+            disabled: false,
+          };
+  }
+};
 
 export default function EventsSection() {
   const [headerRef, headerVisible] = useScrollReveal();
+  const { config: workshopConfig } = useFormConfig('workshop');
+  const { config: ivConfig } = useFormConfig('industry_visit');
+
+  const workshopStatus = workshopConfig?.status || 'open';
+  const ivStatus = ivConfig?.status || 'coming_soon';
+
+  const workshopState = getEventState('workshop', workshopStatus);
+  const ivState = getEventState('industry_visit', ivStatus);
+
+  const events = [
+    {
+      id: 'workshop',
+      icon: <CodeIcon size={44} />,
+      title: 'Workshop',
+      subtitle: 'Bioinformatics Workshop',
+      description:
+        'Explore the intersection of biology and computing. Learn essential bioinformatics software, then compete in an exciting challenge to solve real biological problems using code.',
+      features: [
+        'Introduction to bioinformatics tools',
+        'Hands-on software training',
+        'Problem-solving competition',
+        'Certificates for winners',
+      ],
+      ctaLink: '/register/workshop',
+      ...workshopState,
+    },
+    {
+      id: 'industry-visit',
+      icon: <FactoryIcon size={44} />,
+      title: 'Industry Visit',
+      subtitle: 'Physical Event',
+      description:
+        'Something magical is brewing... Get an exclusive behind-the-scenes look at leading biotech and pharmaceutical companies. Stay tuned for the reveal!',
+      features: [
+        'Details to be announced',
+        'In-person experience',
+        'Industry networking',
+        'More surprises ahead',
+      ],
+      ctaLink: '/register/industry-visit',
+      ...ivState,
+    },
+  ];
 
   return (
     <section className="events-section" id="events">
@@ -81,13 +112,13 @@ export default function EventsSection() {
             Discover the <span className="highlight">Magic</span>
           </h2>
           <p className="section-subtitle">
-            Three enchanting events designed to transform your understanding
+            Two enchanting events designed to transform your understanding
             of biology and technology.
           </p>
         </div>
 
         <div className="events-grid">
-          {EVENTS.map((event, i) => (
+          {events.map((event, i) => (
             <EventCard key={event.id} event={event} delay={i + 1} />
           ))}
         </div>
@@ -124,7 +155,7 @@ function EventCard({ event, delay }) {
         ))}
       </ul>
       <CardWrapper
-        className={`btn ${event.disabled ? 'btn-disabled' : 'btn-primary'}`}
+        className={`btn ${event.ctaClass}`}
         style={{ width: '100%', textAlign: 'center' }}
         id={`event-cta-${event.id}`}
         {...wrapperProps}

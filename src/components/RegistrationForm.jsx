@@ -77,10 +77,74 @@ export default function RegistrationForm({
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
 
+  const [duplicateErrors, setDuplicateErrors] = useState({
+    sliit_reg_number: null,
+    nic_number: null,
+    email: null,
+    telephone: null,
+  });
+  const [checkingFields, setCheckingFields] = useState({
+    sliit_reg_number: false,
+    nic_number: false,
+    email: false,
+    telephone: false,
+  });
+  const [availabilityChecked, setAvailabilityChecked] = useState({
+    sliit_reg_number: false,
+    nic_number: false,
+    email: false,
+    telephone: false,
+  });
+
+  const checkDuplicate = useCallback(async (fieldName, value) => {
+    if (!value || !value.trim()) return;
+
+    let isValidFormat = false;
+    if (fieldName === 'email') isValidFormat = validateEmail(value.trim());
+    else if (fieldName === 'telephone') isValidFormat = validatePhone(value.trim());
+    else if (fieldName === 'nic_number') isValidFormat = validateNIC(value.trim());
+    else if (fieldName === 'sliit_reg_number') isValidFormat = value.trim().length > 0;
+
+    if (!isValidFormat) return;
+
+    setCheckingFields((prev) => ({ ...prev, [fieldName]: true }));
+    setDuplicateErrors((prev) => ({ ...prev, [fieldName]: null }));
+    setAvailabilityChecked((prev) => ({ ...prev, [fieldName]: false }));
+
+    try {
+      const { data, error } = await supabase.rpc('check_registration_exists', {
+        p_event_slug: eventSlug,
+        p_field: fieldName,
+        p_value: value.trim(),
+      });
+
+      if (error) throw error;
+
+      if (data === true) {
+        let msg = 'Already registered';
+        if (fieldName === 'sliit_reg_number') msg = 'This SLIIT Registration Number is already registered.';
+        else if (fieldName === 'nic_number') msg = 'This NIC Number is already registered.';
+        else if (fieldName === 'email') msg = 'This Email Address is already registered.';
+        else if (fieldName === 'telephone') msg = 'This Phone Number is already registered.';
+
+        setDuplicateErrors((prev) => ({ ...prev, [fieldName]: msg }));
+      } else {
+        setDuplicateErrors((prev) => ({ ...prev, [fieldName]: null }));
+        setAvailabilityChecked((prev) => ({ ...prev, [fieldName]: true }));
+      }
+    } catch (err) {
+      console.error('Availability check failed:', err);
+    } finally {
+      setCheckingFields((prev) => ({ ...prev, [fieldName]: false }));
+    }
+  }, [eventSlug]);
+
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setTouched((prev) => ({ ...prev, [name]: true }));
+    setDuplicateErrors((prev) => ({ ...prev, [name]: null }));
+    setAvailabilityChecked((prev) => ({ ...prev, [name]: false }));
     setErrors((prev) => {
       if (prev[name]) {
         const next = { ...prev };
@@ -92,21 +156,45 @@ export default function RegistrationForm({
   }, []);
 
   const handleBlur = useCallback((e) => {
-    const { name } = e.target;
+    const { name, value } = e.target;
     setTouched((prev) => ({ ...prev, [name]: true }));
-  }, []);
+    if (['email', 'telephone', 'nic_number', 'sliit_reg_number'].includes(name)) {
+      checkDuplicate(name, value);
+    }
+  }, [checkDuplicate]);
 
   // Per-field validation status for animated icons
   const fieldStatus = useMemo(() => {
     const s = {};
     if (touched.full_name) s.full_name = validateName(form.full_name) ? 'valid' : 'invalid';
-    if (touched.sliit_reg_number) s.sliit_reg_number = form.sliit_reg_number.trim().length > 0 ? 'valid' : 'invalid';
-    if (touched.email) s.email = validateEmail(form.email.trim()) ? 'valid' : 'invalid';
-    if (touched.telephone) s.telephone = validatePhone(form.telephone.trim()) ? 'valid' : 'invalid';
-    if (touched.nic_number) s.nic_number = validateNIC(form.nic_number.trim()) ? 'valid' : 'invalid';
+    
+    if (touched.sliit_reg_number) {
+      if (duplicateErrors.sliit_reg_number) s.sliit_reg_number = 'invalid';
+      else if (checkingFields.sliit_reg_number) s.sliit_reg_number = 'loading';
+      else s.sliit_reg_number = form.sliit_reg_number.trim().length > 0 ? 'valid' : 'invalid';
+    }
+    
+    if (touched.email) {
+      if (duplicateErrors.email) s.email = 'invalid';
+      else if (checkingFields.email) s.email = 'loading';
+      else s.email = validateEmail(form.email.trim()) ? 'valid' : 'invalid';
+    }
+    
+    if (touched.telephone) {
+      if (duplicateErrors.telephone) s.telephone = 'invalid';
+      else if (checkingFields.telephone) s.telephone = 'loading';
+      else s.telephone = validatePhone(form.telephone.trim()) ? 'valid' : 'invalid';
+    }
+    
+    if (touched.nic_number) {
+      if (duplicateErrors.nic_number) s.nic_number = 'invalid';
+      else if (checkingFields.nic_number) s.nic_number = 'loading';
+      else s.nic_number = validateNIC(form.nic_number.trim()) ? 'valid' : 'invalid';
+    }
+    
     if (touched.faculty) s.faculty = form.faculty ? 'valid' : 'invalid';
     return s;
-  }, [form, touched]);
+  }, [form, touched, duplicateErrors, checkingFields]);
 
   const validate = useCallback(() => {
     const errs = {};
@@ -174,10 +262,25 @@ export default function RegistrationForm({
           });
         } else if (data && !data.success) {
           // RPC returned a validation/duplicate error
-          setMessage({
-            type: 'error',
-            text: data.error || 'Registration failed. Please try again.',
-          });
+          const errorMsg = data.error || '';
+          if (errorMsg.toLowerCase().includes('sliit')) {
+            setDuplicateErrors((prev) => ({ ...prev, sliit_reg_number: errorMsg }));
+            setErrors((prev) => ({ ...prev, sliit_reg_number: errorMsg }));
+          } else if (errorMsg.toLowerCase().includes('nic')) {
+            setDuplicateErrors((prev) => ({ ...prev, nic_number: errorMsg }));
+            setErrors((prev) => ({ ...prev, nic_number: errorMsg }));
+          } else if (errorMsg.toLowerCase().includes('email')) {
+            setDuplicateErrors((prev) => ({ ...prev, email: errorMsg }));
+            setErrors((prev) => ({ ...prev, email: errorMsg }));
+          } else if (errorMsg.toLowerCase().includes('phone') || errorMsg.toLowerCase().includes('telephone')) {
+            setDuplicateErrors((prev) => ({ ...prev, telephone: errorMsg }));
+            setErrors((prev) => ({ ...prev, telephone: errorMsg }));
+          } else {
+            setMessage({
+              type: 'error',
+              text: errorMsg || 'Registration failed. Please try again.',
+            });
+          }
         } else if (data && data.success) {
           const regId = data.registration_id || `R${eventPrefix}001`;
 
@@ -218,12 +321,27 @@ export default function RegistrationForm({
   const renderValidationIcon = (fieldName) => {
     const status = fieldStatus[fieldName];
     if (!status) return null;
+    if (status === 'loading') {
+      return (
+        <span className="field-validation-wrapper">
+          <span className="btn-spinner" style={{ width: 14, height: 14, borderWidth: 1.5, borderColor: 'var(--text-muted) transparent transparent transparent' }} />
+        </span>
+      );
+    }
     return (
       <span className={`field-validation-wrapper ${status === 'valid' ? 'is-valid' : 'is-invalid'}`}>
         {status === 'valid' ? <FieldTickIcon /> : <FieldCrossIcon />}
       </span>
     );
   };
+
+  const hasDuplicateErrors = useMemo(() => {
+    return Object.values(duplicateErrors).some(Boolean);
+  }, [duplicateErrors]);
+
+  const isChecking = useMemo(() => {
+    return Object.values(checkingFields).some(Boolean);
+  }, [checkingFields]);
 
   return (
     <div className="glass-form-card" id={`form-${eventSlug}`}>
@@ -269,7 +387,7 @@ export default function RegistrationForm({
         </div>
 
         {/* SLIIT Registration Number */}
-        <div className={`floating-field ${errors.sliit_reg_number ? 'has-error' : ''}`}>
+        <div className={`floating-field ${errors.sliit_reg_number || duplicateErrors.sliit_reg_number ? 'has-error' : ''}`}>
           <div className="field-icon-wrapper">
             <IDCardIcon />
           </div>
@@ -289,11 +407,11 @@ export default function RegistrationForm({
             </label>
             {renderValidationIcon('sliit_reg_number')}
           </div>
-          {errors.sliit_reg_number && <div className="field-error"><AlertIcon size={12} /> {errors.sliit_reg_number}</div>}
+          {(errors.sliit_reg_number || duplicateErrors.sliit_reg_number) && <div className="field-error"><AlertIcon size={12} /> {errors.sliit_reg_number || duplicateErrors.sliit_reg_number}</div>}
         </div>
 
         {/* Email */}
-        <div className={`floating-field ${errors.email ? 'has-error' : ''}`}>
+        <div className={`floating-field ${errors.email || duplicateErrors.email ? 'has-error' : ''}`}>
           <div className="field-icon-wrapper">
             <EmailIcon />
           </div>
@@ -314,11 +432,11 @@ export default function RegistrationForm({
             </label>
             {renderValidationIcon('email')}
           </div>
-          {errors.email && <div className="field-error"><AlertIcon size={12} /> {errors.email}</div>}
+          {(errors.email || duplicateErrors.email) && <div className="field-error"><AlertIcon size={12} /> {errors.email || duplicateErrors.email}</div>}
         </div>
 
         {/* Telephone */}
-        <div className={`floating-field ${errors.telephone ? 'has-error' : ''}`}>
+        <div className={`floating-field ${errors.telephone || duplicateErrors.telephone ? 'has-error' : ''}`}>
           <div className="field-icon-wrapper">
             <PhoneIcon />
           </div>
@@ -340,11 +458,11 @@ export default function RegistrationForm({
             </label>
             {renderValidationIcon('telephone')}
           </div>
-          {errors.telephone && <div className="field-error"><AlertIcon size={12} /> {errors.telephone}</div>}
+          {(errors.telephone || duplicateErrors.telephone) && <div className="field-error"><AlertIcon size={12} /> {errors.telephone || duplicateErrors.telephone}</div>}
         </div>
 
         {/* NIC Number */}
-        <div className={`floating-field ${errors.nic_number ? 'has-error' : ''}`}>
+        <div className={`floating-field ${errors.nic_number || duplicateErrors.nic_number ? 'has-error' : ''}`}>
           <div className="field-icon-wrapper">
             <IDCardIcon />
           </div>
@@ -365,7 +483,7 @@ export default function RegistrationForm({
             </label>
             {renderValidationIcon('nic_number')}
           </div>
-          {errors.nic_number && <div className="field-error"><AlertIcon size={12} /> {errors.nic_number}</div>}
+          {(errors.nic_number || duplicateErrors.nic_number) && <div className="field-error"><AlertIcon size={12} /> {errors.nic_number || duplicateErrors.nic_number}</div>}
         </div>
 
         {/* Faculty */}
@@ -398,7 +516,7 @@ export default function RegistrationForm({
         <button
           type="submit"
           className="btn btn-submit"
-          disabled={submitting}
+          disabled={submitting || hasDuplicateErrors || isChecking}
           id={`${eventSlug}-submit-btn`}
         >
           {submitting ? (

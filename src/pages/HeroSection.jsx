@@ -50,16 +50,13 @@ export default function HeroSection() {
         </p>
 
         <div className="hero-buttons">
-          <Link to="/register/workshop-1" className="btn btn-primary" id="hero-register-w1">
+          <Link to="/register/workshop" className="btn btn-primary" id="hero-register-workshop">
             <Sparkles size={18} />
-            Register for Workshop 01
+            Register for Workshop
           </Link>
-          <Link to="/register/workshop-2" className="btn btn-secondary" id="hero-register-w2">
+          <Link to="/register/industry-visit" className="btn btn-secondary" id="hero-register-iv">
             <Sparkles size={18} />
-            Register for Workshop 02
-          </Link>
-          <Link to="/register/industry-visit" className="btn btn-disabled-link" id="hero-coming-soon">
-            Coming Soon Event
+            Industry Visit
           </Link>
         </div>
       </div>

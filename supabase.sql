@@ -42,18 +42,14 @@ CREATE TABLE events (
 
 -- Seed events
 INSERT INTO events (slug, name, prefix, status, event_date, venue, description) VALUES
-  ('workshop-1', 'Bioinformatics Workshop', 'W', 'open',
+  ('workshop', 'Bioinformatics Workshop', 'W', 'open',
    'Coming Soon', 'University Main Auditorium',
    'Explore the intersection of biology and computing. Learn essential bioinformatics software, then compete in an exciting challenge.'),
-  ('workshop-2', 'Advanced Lab Workshop', 'I', 'open',
-   'Coming Soon', 'Faculty of Science Lab Complex',
-   'Advanced biotechnology techniques with cutting-edge lab experiments and collaborative problem solving with industry experts.'),
   ('industry-visit', 'Industry Visit', 'S', 'coming_soon',
    NULL, NULL,
-   'Behind-the-scenes look at leading biotech and pharmaceutical companies.'),
-  ('competition', 'Competition', 'C', 'coming_soon',
-   NULL, NULL, NULL)
+   'Behind-the-scenes look at leading biotech and pharmaceutical companies.')
 ON CONFLICT (slug) DO NOTHING;
+
 
 -- -----------------------------------------------
 -- Registration Counter Table
@@ -67,9 +63,7 @@ CREATE TABLE registration_counters (
 -- Seed counters for each event prefix
 INSERT INTO registration_counters (event_prefix, current_count) VALUES
   ('W', 0),
-  ('I', 0),
-  ('S', 0),
-  ('C', 0)
+  ('S', 0)
 ON CONFLICT (event_prefix) DO NOTHING;
 
 -- -----------------------------------------------
@@ -127,8 +121,10 @@ CREATE TABLE registrations (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
 
   -- Same student can register for different events, but not twice for the same event
-  UNIQUE(event_slug, nic_number),
-  UNIQUE(event_slug, email)
+  CONSTRAINT unique_event_sliit_reg UNIQUE (event_slug, sliit_reg_number),
+  CONSTRAINT unique_event_nic UNIQUE (event_slug, nic_number),
+  CONSTRAINT unique_event_email UNIQUE (event_slug, email),
+  CONSTRAINT unique_event_telephone UNIQUE (event_slug, telephone)
 );
 
 -- Indexes for common queries
@@ -320,6 +316,35 @@ BEGIN
     RETURN json_build_object('success', false, 'error', 'Invalid faculty selection.');
   END IF;
 
+  -- PREEMPTIVE CHECKS FOR DUPLICATES
+  IF EXISTS (
+    SELECT 1 FROM registrations 
+    WHERE event_slug = p_event_slug AND sliit_reg_number = v_clean_sliit
+  ) THEN
+    RETURN json_build_object('success', false, 'error', 'This SLIIT Registration Number is already registered.');
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM registrations 
+    WHERE event_slug = p_event_slug AND nic_number = v_clean_nic
+  ) THEN
+    RETURN json_build_object('success', false, 'error', 'This NIC Number is already registered.');
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM registrations 
+    WHERE event_slug = p_event_slug AND email = v_clean_email
+  ) THEN
+    RETURN json_build_object('success', false, 'error', 'This Email Address is already registered.');
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM registrations 
+    WHERE event_slug = p_event_slug AND telephone = v_clean_phone
+  ) THEN
+    RETURN json_build_object('success', false, 'error', 'This Phone Number is already registered.');
+  END IF;
+
   -- Insert (trigger will generate registration_id)
   INSERT INTO registrations (
     event_slug, full_name, sliit_reg_number,
@@ -334,11 +359,15 @@ BEGIN
 
 EXCEPTION
   WHEN unique_violation THEN
-    -- Check which constraint was violated
-    IF SQLERRM LIKE '%nic_number%' THEN
-      RETURN json_build_object('success', false, 'error', 'This NIC Number has already been registered for this event.');
+    -- Fallback race-condition handler
+    IF SQLERRM LIKE '%sliit%' THEN
+      RETURN json_build_object('success', false, 'error', 'This SLIIT Registration Number is already registered.');
+    ELSIF SQLERRM LIKE '%nic%' THEN
+      RETURN json_build_object('success', false, 'error', 'This NIC Number is already registered.');
     ELSIF SQLERRM LIKE '%email%' THEN
-      RETURN json_build_object('success', false, 'error', 'This email has already been registered for this event.');
+      RETURN json_build_object('success', false, 'error', 'This Email Address is already registered.');
+    ELSIF SQLERRM LIKE '%telephone%' OR SQLERRM LIKE '%phone%' THEN
+      RETURN json_build_object('success', false, 'error', 'This Phone Number is already registered.');
     ELSE
       RETURN json_build_object('success', false, 'error', 'You have already registered for this event.');
     END IF;

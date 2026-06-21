@@ -71,20 +71,20 @@ export default function Navbar() {
           )}
           <li>
             <Link
-              to="/register/workshop-1"
-              className={`nav-link ${location.pathname === '/register/workshop-1' ? 'active' : ''}`}
-              id="nav-workshop-1"
+              to="/register/workshop"
+              className={`nav-link ${location.pathname === '/register/workshop' ? 'active' : ''}`}
+              id="nav-workshop"
             >
-              Workshop 01
+              Workshop
             </Link>
           </li>
           <li>
             <Link
-              to="/register/workshop-2"
-              className={`nav-link ${location.pathname === '/register/workshop-2' ? 'active' : ''}`}
-              id="nav-workshop-2"
+              to="/register/industry-visit"
+              className={`nav-link ${location.pathname === '/register/industry-visit' ? 'active' : ''}`}
+              id="nav-industry-visit"
             >
-              Workshop 02
+              Industry Visit
             </Link>
           </li>
         </ul>

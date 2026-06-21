@@ -5,9 +5,8 @@ import Particles from './components/Particles';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
-import Workshop1Page from './pages/Workshop1Page';
-import Workshop2Page from './pages/Workshop2Page';
-import ComingSoonPage from './pages/ComingSoonPage';
+import WorkshopPage from './pages/WorkshopPage';
+import IndustryVisitPage from './pages/IndustryVisitPage';
 import SuccessPage from './pages/SuccessPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminLoginPage from './pages/AdminLoginPage';
@@ -44,9 +43,8 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/register/workshop-1" element={<Workshop1Page />} />
-            <Route path="/register/workshop-2" element={<Workshop2Page />} />
-            <Route path="/register/industry-visit" element={<ComingSoonPage />} />
+            <Route path="/register/workshop" element={<WorkshopPage />} />
+            <Route path="/register/industry-visit" element={<IndustryVisitPage />} />
             <Route path="/success" element={<SuccessPage />} />
 
             {/* Admin routes (not linked in public nav) */}
