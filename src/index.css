@@ -879,7 +879,6 @@ input, select, textarea { font-family: inherit; outline: none; }
     overflow: hidden; box-sizing: border-box;
   }
   .glass-form-card * { box-sizing: border-box; }
-  .floating-field { flex-wrap: nowrap; }
   .field-icon-wrapper { display: none; }
   .field-error { padding-left: 0; }
   .register-page { padding: 100px 0 60px; }
