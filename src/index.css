@@ -72,7 +72,7 @@
 
 /* ---------- Reset ---------- */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: hidden; width: 100%; }
 body {
   font-family: var(--font-body);
   background: var(--bg-deep);
@@ -80,6 +80,8 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; }
@@ -570,16 +572,37 @@ input, select, textarea { font-family: inherit; outline: none; }
 .floating-field.has-error .floating-select {
   border-color: var(--error); box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.1);
 }
-.field-error { width: 100%; font-size: 0.78rem; color: var(--error); margin-top: -2px; padding-left: 52px; }
+.field-error {
+  width: 100%; font-size: 0.78rem; color: var(--error);
+  margin-top: 4px; padding: 4px 0 4px 52px;
+  box-sizing: border-box;
+  word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
+  display: flex; align-items: flex-start; gap: 6px;
+  min-font-size: 12px;
+}
+.field-error svg { flex-shrink: 0; margin-top: 1px; }
 
 /* Form messages */
 .form-message {
-  padding: 14px 18px; border-radius: var(--radius-sm); font-size: 0.9rem;
-  margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; border-radius: 8px; font-size: 0.9rem;
+  margin-bottom: 24px; display: flex; align-items: flex-start; gap: 10px;
   animation: fadeInDown 0.4s var(--ease-out-expo);
+  width: 100%; box-sizing: border-box;
+  word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
 }
-.form-message.success { background: var(--success-bg); border: 1px solid rgba(74, 222, 128, 0.3); color: var(--success); }
-.form-message.error { background: var(--error-bg); border: 1px solid rgba(248, 113, 113, 0.3); color: var(--error); }
+.form-message svg { flex-shrink: 0; margin-top: 2px; }
+.form-message.success {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-left: 3px solid #22c55e;
+  color: #86efac;
+}
+.form-message.error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-left: 3px solid #ef4444;
+  color: #fca5a5;
+}
 
 /* =============================================
    PAGE TRANSITIONS
@@ -808,29 +831,206 @@ input, select, textarea { font-family: inherit; outline: none; }
 .reveal-delay-4 { transition-delay: 0.4s; }
 
 /* =============================================
-   RESPONSIVE
+   RESPONSIVE — Consistent Breakpoints
+   Mobile small:  max-width: 380px
+   Mobile:        max-width: 480px
+   Tablet:        max-width: 768px
+   Desktop:       min-width: 1024px
    ============================================= */
-@media (max-width: 640px) {
+
+/* ---------- Tablet (768px) ---------- */
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+
+  /* Navbar */
+  .nav-toggle {
+    display: flex;
+    min-width: 44px; min-height: 44px;
+    align-items: center; justify-content: center;
+  }
+  .nav-links {
+    position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
+    flex-direction: column; justify-content: center; gap: 12px;
+    background: rgba(5, 10, 5, 0.97); backdrop-filter: blur(30px);
+    border-left: 1px solid var(--border-subtle);
+    transition: right 0.4s var(--ease-out-expo); padding: 40px; z-index: 101;
+  }
+  .nav-links.open { right: 0; }
+  .nav-link {
+    font-size: 1.1rem; padding: 12px 20px; width: 100%;
+    min-height: 44px; display: flex; align-items: center;
+  }
+
+  /* Hero */
   .hero { padding: 100px 16px 60px; }
   .hero-buttons { flex-direction: column; align-items: stretch; }
-  .hero-buttons .btn, .hero-buttons .btn-disabled-link { width: 100%; }
-  .events-grid { grid-template-columns: 1fr; }
-  .glass-form-card { padding: 24px; }
-  .event-card { padding: 24px; }
+  .hero-buttons .btn, .hero-buttons .btn-disabled-link {
+    width: 100%; min-height: 48px;
+  }
   .hero-svg-field { display: none; }
-  .coming-soon__card { padding: 36px 24px; }
-  .countdown { gap: 8px; }
-  .countdown__number { padding: 10px 12px; min-width: 56px; font-size: 1.5rem; }
+
+  /* Events */
+  .events-grid { grid-template-columns: 1fr; }
+  .event-card { padding: 24px; max-width: 100%; }
+
+  /* Form */
+  .glass-form-card {
+    padding: 24px; width: 100%; margin: 0;
+    overflow: hidden; box-sizing: border-box;
+  }
+  .glass-form-card * { box-sizing: border-box; }
   .floating-field { flex-wrap: nowrap; }
   .field-icon-wrapper { display: none; }
   .field-error { padding-left: 0; }
+  .register-page { padding: 100px 0 60px; }
+
+  /* Form messages mobile */
+  .form-message { padding: 12px 14px; font-size: 13px; }
+  .field-error { font-size: 0.75rem; }
+
+  /* Input font-size 16px prevents iPhone zoom */
+  .floating-input, .floating-select {
+    font-size: 16px;
+    -webkit-appearance: none;
+  }
+
+  /* Submit button */
+  .btn-submit {
+    width: 100%; min-height: 48px; font-size: 15px;
+  }
+
+  /* Back link */
+  .back-link { min-height: 44px; display: inline-flex; align-items: center; }
+
+  /* Coming soon */
+  .coming-soon__card { padding: 36px 24px; }
+  .countdown { gap: 8px; }
+  .countdown__number { padding: 10px 12px; min-width: 56px; font-size: 1.5rem; }
+
+  /* Success page */
+  .success-page { padding: 80px 0 60px; }
+  .success-content { padding: 0 16px; width: 100%; }
+  .success-card { padding: 24px; }
+  .success-hero-card { padding: 32px 20px; }
+  .success-checkmark-wrapper { width: 80px; height: 80px; }
+  .success-checkmark-wrapper .animated-checkmark { width: 80px; height: 80px; }
+  .reg-number-text {
+    font-size: 1.6rem; letter-spacing: 3px;
+    word-break: break-all;
+  }
+  .success-reg-number { padding: 10px 24px; max-width: 100%; }
+  .success-card-value { word-wrap: break-word; overflow-wrap: break-word; }
+  .btn-close-portal { padding: 14px 32px; font-size: 0.95rem; width: 100%; }
+
+  /* Footer */
+  .social-link { min-width: 44px; min-height: 44px; width: 44px; height: 44px; }
+  .footer-content { gap: 16px; }
+
+  /* OrgSection */
+  .org-grid { grid-template-columns: 1fr; gap: 24px; }
+  .org-card { padding: 24px; }
+  .org-section .section-title { font-size: 1.8rem; }
+  .org-logo-img { max-width: 100%; }
+  .org-combined-logo { max-width: 100%; height: auto; }
+
+  /* Buttons general */
+  .btn { min-height: 44px; }
 }
 
-@media (max-width: 380px) {
-  .hero-title { font-size: 2.4rem; }
-  .glass-form-card { padding: 20px; }
+/* ---------- Mobile (480px) ---------- */
+@media (max-width: 480px) {
+  .hero { padding: 90px 16px 50px; }
+  .hero-title { font-size: clamp(1.8rem, 8vw, 3rem); }
+
+  /* Form card tighter */
+  .glass-form-card { padding: 16px; }
+
+  /* Input fields */
+  .floating-input, .floating-select {
+    padding: 16px 14px 8px;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  /* Submit */
+  .btn-submit {
+    padding: 14px 20px; font-size: 15px;
+    min-height: 48px;
+  }
+
+  /* Form messages */
+  .form-message { padding: 12px 14px; font-size: 13px; }
+  .field-error { font-size: 12px; padding-left: 0; }
+
+  /* Event cards */
+  .event-card { padding: 20px; }
+  .card-title { font-size: 1.2rem; }
+  .card-description { font-size: 0.88rem; }
+
+  /* Coming soon */
   .coming-soon__card { padding: 28px 16px; }
+
+  /* Success */
+  .success-card { padding: 20px; }
+  .success-hero-card { padding: 28px 16px; }
+  .reg-number-text { font-size: 1.4rem; letter-spacing: 2px; }
+
+  /* OrgSection */
+  .org-card { padding: 20px; }
+  .org-card-heading { font-size: 1.15rem; }
+  .org-card-body { font-size: 13px; }
+
+  /* Section headers */
+  .section-header { margin-bottom: 40px; }
+  .section-title { font-size: clamp(1.6rem, 5vw, 2.5rem); }
+  .section-subtitle { font-size: 0.92rem; }
+
+  /* Register page header */
+  .register-page__title { font-size: clamp(1.5rem, 5vw, 2.5rem); }
+  .register-page__subtitle { font-size: 0.92rem; }
 }
+
+/* ---------- Mobile Small (380px) ---------- */
+@media (max-width: 380px) {
+  .hero-title { font-size: 1.8rem; }
+  .glass-form-card { padding: 14px; }
+  .coming-soon__card { padding: 24px 14px; }
+  .success-card { padding: 16px; }
+  .reg-number-text { font-size: 1.2rem; letter-spacing: 1px; }
+  .title-radio-pill { padding: 8px 18px; }
+  .org-card { padding: 16px; }
+  .org-card-heading { font-size: 1.05rem; }
+  .event-card { padding: 16px; }
+  .floating-input, .floating-select { padding: 14px 12px 6px; }
+  .hero-badge { font-size: 0.75rem; padding: 6px 14px; }
+}
+
+/* ---------- iOS / Touch-specific ---------- */
+@supports (-webkit-touch-callout: none) {
+  .floating-input, .floating-select {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+  }
+  select.floating-select {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+/* ---------- Touch target & Accessibility ---------- */
+@media (hover: none) and (pointer: coarse) {
+  .btn, .nav-link, .back-link, .social-link, .org-logo-link, .org-overlay-link {
+    min-height: 44px;
+  }
+  .nav-toggle { min-width: 44px; min-height: 44px; }
+}
+
+/* Scrollable containers touch */
+.admin-table-wrapper,
+.coming-soon-modal {
+  -webkit-overflow-scrolling: touch;
+}
+
 
 /* =============================================
    ADMIN LOGIN PAGE
@@ -2074,26 +2274,7 @@ input, select, textarea { font-family: inherit; outline: none; }
   50% { opacity: 0.5; }
 }
 
-/* =============================================
-   SUCCESS PAGE RESPONSIVE
-   ============================================= */
-@media (max-width: 640px) {
-  .success-page { padding: 80px 0 60px; }
-  .success-card { padding: 24px; }
-  .success-hero-card { padding: 32px 20px; }
-  .success-checkmark-wrapper { width: 80px; height: 80px; }
-  .success-checkmark-wrapper .animated-checkmark { width: 80px; height: 80px; }
-  .reg-number-text { font-size: 1.6rem; letter-spacing: 3px; }
-  .success-reg-number { padding: 10px 24px; }
-  .title-radio-pill { padding: 10px 22px; font-size: 0.88rem; }
-  .btn-close-portal { padding: 14px 32px; font-size: 0.95rem; }
-}
 
-@media (max-width: 380px) {
-  .success-card { padding: 20px; }
-  .reg-number-text { font-size: 1.3rem; letter-spacing: 2px; }
-  .title-radio-pill { padding: 8px 18px; }
-}
 
 /* =============================================
    ORGANIZING BODIES SECTION (UPDATED FOR BRAND GUIDELINES)
@@ -2293,20 +2474,8 @@ input, select, textarea { font-family: inherit; outline: none; }
   text-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
 }
 
-@media (max-width: 768px) {
-  .org-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  
-  .org-card {
-    padding: 24px;
-  }
-  
-  .org-section .section-title {
-    font-size: 1.8rem;
-  }
-}
+
+
 
 /* --- Combined Logo & Overlay Link Styles --- */
 .org-combined-logo-wrapper {
@@ -2362,4 +2531,53 @@ input, select, textarea { font-family: inherit; outline: none; }
 }
 
 
+/* =============================================
+   LATE-DEFINED COMPONENT RESPONSIVE OVERRIDES
+   These must come after the base styles above
+   to ensure proper CSS cascade.
+   ============================================= */
 
+/* ---------- OrgSection Mobile ---------- */
+@media (max-width: 768px) {
+  .org-grid { grid-template-columns: 1fr; gap: 24px; }
+  .org-card { padding: 24px; }
+  .org-section .section-title { font-size: 1.8rem; }
+  .org-logo-img { max-width: 100%; }
+  .org-combined-logo { max-width: 100%; height: auto; }
+}
+@media (max-width: 480px) {
+  .org-card { padding: 20px; }
+  .org-card-heading { font-size: 1.15rem; }
+  .org-card-body { font-size: 13px; }
+}
+@media (max-width: 380px) {
+  .org-card { padding: 16px; }
+  .org-card-heading { font-size: 1.05rem; }
+}
+
+/* ---------- Success Page Mobile ---------- */
+@media (max-width: 768px) {
+  .success-page { padding: 80px 0 60px; }
+  .success-content { padding: 0 16px; width: 100%; }
+  .success-card { padding: 24px; }
+  .success-hero-card { padding: 32px 20px; }
+  .success-checkmark-wrapper { width: 80px; height: 80px; }
+  .success-checkmark-wrapper .animated-checkmark { width: 80px; height: 80px; }
+  .reg-number-text {
+    font-size: 1.6rem; letter-spacing: 3px;
+    word-break: break-all;
+  }
+  .success-reg-number { padding: 10px 24px; max-width: 100%; }
+  .success-card-value { word-wrap: break-word; overflow-wrap: break-word; }
+  .btn-close-portal { padding: 14px 32px; font-size: 0.95rem; width: 100%; }
+}
+@media (max-width: 480px) {
+  .success-card { padding: 20px; }
+  .success-hero-card { padding: 28px 16px; }
+  .reg-number-text { font-size: 1.4rem; letter-spacing: 2px; }
+}
+@media (max-width: 380px) {
+  .success-card { padding: 16px; }
+  .reg-number-text { font-size: 1.2rem; letter-spacing: 1px; }
+  .title-radio-pill { padding: 8px 18px; }
+}
