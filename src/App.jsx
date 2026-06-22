@@ -4,6 +4,7 @@ import LoadingScreen from './components/LoadingScreen';
 import Particles from './components/Particles';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import OrgSection from './components/OrgSection';
 import HomePage from './pages/HomePage';
 import WorkshopPage from './pages/WorkshopPage';
 import IndustryVisitPage from './pages/IndustryVisitPage';
@@ -62,6 +63,7 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
+        {!isAdminRoute && <OrgSection />}
         {!isAdminRoute && <Footer />}
       </div>
     </>
