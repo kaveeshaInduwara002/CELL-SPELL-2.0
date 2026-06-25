@@ -127,7 +127,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- Only log when status actually changes
+  -- Only log and sync when status actually changes
   IF OLD.status IS DISTINCT FROM NEW.status THEN
     INSERT INTO form_status_logs (form_key, old_status, new_status, changed_by)
     VALUES (
@@ -138,6 +138,14 @@ BEGIN
         (SELECT email FROM admin_users WHERE id = auth.uid()),
         'system'
       )
+    );
+
+    -- Sync the events table status
+    UPDATE events
+    SET status = NEW.status
+    WHERE (
+      (NEW.form_key = 'workshop' AND slug = 'workshop') OR
+      (NEW.form_key = 'industry_visit' AND slug = 'industry-visit')
     );
   END IF;
 

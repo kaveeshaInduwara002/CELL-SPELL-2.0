@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import useFormConfig from '../hooks/useFormConfig';
 import CountdownTimer from './CountdownTimer';
 import { LockIcon, Hourglass, Sparkles, ArrowLeftIcon } from './SVGIcons';
+import { supabase } from '../lib/supabaseClient';
 
 /**
  * Public-facing form gate component.
@@ -18,6 +19,16 @@ import { LockIcon, Hourglass, Sparkles, ArrowLeftIcon } from './SVGIcons';
  */
 export default function FormStatusGate({ formKey, children }) {
   const { config, loading, refetch } = useFormConfig(formKey);
+
+  const handleCountdownComplete = async () => {
+    try {
+      await supabase.rpc('check_scheduled_opens');
+    } catch (err) {
+      console.error('Failed to trigger scheduled open:', err);
+    } finally {
+      refetch();
+    }
+  };
 
   if (loading) {
     return (
@@ -39,7 +50,7 @@ export default function FormStatusGate({ formKey, children }) {
   }
 
   if (status === 'coming_soon') {
-    return <ComingSoonView config={config} onCountdownComplete={refetch} />;
+    return <ComingSoonView config={config} onCountdownComplete={handleCountdownComplete} />;
   }
 
   return <>{children}</>;
