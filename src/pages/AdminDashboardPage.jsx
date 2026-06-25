@@ -11,6 +11,17 @@ const FACULTIES = [
   'Business School',
 ];
 
+const YEAR_SEMESTERS = [
+  '1st Year 1st Semester',
+  '1st Year 2nd Semester',
+  '2nd Year 1st Semester',
+  '2nd Year 2nd Semester',
+  '3rd Year 1st Semester',
+  '3rd Year 2nd Semester',
+  '4th Year 1st Semester',
+  '4th Year 2nd Semester',
+];
+
 const FORM_EVENTS = [
   { key: 'workshop', label: 'Workshop', icon: <CodeIcon size={24} /> },
   { key: 'industry_visit', label: 'Industry Visit', icon: <FactoryIcon size={24} /> },
@@ -33,6 +44,7 @@ export default function AdminDashboardPage() {
   const [searchInput, setSearchInput] = useState('');
   const [filterEvent, setFilterEvent] = useState('');
   const [filterFaculty, setFilterFaculty] = useState('');
+  const [filterYearSemester, setFilterYearSemester] = useState('');
   const [events, setEvents] = useState([]);
 
   // Form control state
@@ -114,6 +126,7 @@ export default function AdminDashboardPage() {
         p_event_slug: filterEvent || null,
         p_search: search || null,
         p_faculty: filterFaculty || null,
+        p_year_semester: filterYearSemester || null,
         p_limit: PAGE_SIZE,
         p_offset: page * PAGE_SIZE,
       });
@@ -125,7 +138,7 @@ export default function AdminDashboardPage() {
     } finally {
       setTableLoading(false);
     }
-  }, [filterEvent, filterFaculty, search, page]);
+  }, [filterEvent, filterFaculty, filterYearSemester, search, page]);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchRegistrations(); }, [fetchRegistrations]);
@@ -246,6 +259,7 @@ export default function AdminDashboardPage() {
         p_event_slug: filterEvent || null,
         p_search: search || null,
         p_faculty: filterFaculty || null,
+        p_year_semester: filterYearSemester || null,
         p_limit: 10000,
         p_offset: 0,
       });
@@ -259,7 +273,7 @@ export default function AdminDashboardPage() {
 
       const headers = [
         'Registration ID', 'Event', 'Full Name', 'SLIIT Reg No',
-        'Email', 'Telephone', 'NIC Number', 'Faculty', 'Registered At',
+        'Email', 'Telephone', 'NIC Number', 'Faculty', 'Year & Semester', 'Registered At',
       ];
       const csvRows = [headers.join(',')];
       allRows.forEach((r) => {
@@ -272,6 +286,7 @@ export default function AdminDashboardPage() {
           r.telephone,
           r.nic_number,
           `"${r.faculty}"`,
+          `"${r.year_semester || ''}"`,
           new Date(r.created_at).toLocaleString(),
         ].join(','));
       });
@@ -573,6 +588,17 @@ export default function AdminDashboardPage() {
                 <option key={f} value={f}>{f.replace('Faculty of ', '')}</option>
               ))}
             </select>
+            <select
+              className="admin-filter-select"
+              value={filterYearSemester}
+              onChange={(e) => { setFilterYearSemester(e.target.value); setPage(0); }}
+              id="admin-filter-year-semester"
+            >
+              <option value="">All Semesters</option>
+              {YEAR_SEMESTERS.map((ys) => (
+                <option key={ys} value={ys}>{ys}</option>
+              ))}
+            </select>
           </div>
           <button onClick={handleExport} className="btn btn-primary admin-export-btn" id="admin-export-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -607,21 +633,23 @@ export default function AdminDashboardPage() {
                   <th>Phone</th>
                   <th>NIC</th>
                   <th>Faculty</th>
+                  <th>Year & Semester</th>
                   <th>Date</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.id}>
-                    <td className="admin-td-mono">{r.registration_id}</td>
-                    <td>{r.event_name}</td>
-                    <td>{r.full_name}</td>
-                    <td className="admin-td-mono">{r.sliit_reg_number}</td>
-                    <td>{r.email}</td>
-                    <td className="admin-td-mono">{r.telephone}</td>
-                    <td className="admin-td-mono">{r.nic_number}</td>
-                    <td className="admin-td-faculty">{r.faculty.replace('Faculty of ', '')}</td>
-                    <td className="admin-td-date">{new Date(r.created_at).toLocaleDateString()}</td>
+                     <td className="admin-td-mono">{r.registration_id}</td>
+                     <td>{r.event_name}</td>
+                     <td>{r.full_name}</td>
+                     <td className="admin-td-mono">{r.sliit_reg_number}</td>
+                     <td>{r.email}</td>
+                     <td className="admin-td-mono">{r.telephone}</td>
+                     <td className="admin-td-mono">{r.nic_number}</td>
+                     <td className="admin-td-faculty">{r.faculty.replace('Faculty of ', '')}</td>
+                     <td>{r.year_semester}</td>
+                     <td className="admin-td-date">{new Date(r.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

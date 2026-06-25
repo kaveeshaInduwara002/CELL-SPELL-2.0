@@ -86,6 +86,11 @@ body {
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; }
 input, select, textarea { font-family: inherit; outline: none; }
+input[name="nic_number"],
+input[name="sliit_reg_number"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-deep); }
@@ -522,7 +527,7 @@ input, select, textarea { font-family: inherit; outline: none; }
 .form-subtitle { font-size: 0.88rem; color: var(--text-muted); }
 
 /* Floating label fields */
-.floating-field { margin-bottom: 22px; display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.floating-field { margin-bottom: 16px; display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
 .field-icon-wrapper {
   width: 40px; height: 48px; display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; margin-top: 2px; opacity: 0.6;
@@ -530,18 +535,25 @@ input, select, textarea { font-family: inherit; outline: none; }
 }
 .floating-field:focus-within .field-icon-wrapper { opacity: 1; }
 .field-input-wrapper { flex: 1; position: relative; min-width: 0; }
-.floating-input, .floating-select {
-  width: 100%; padding: 18px 16px 8px; border-radius: var(--radius-sm);
+.floating-input {
+  width: 100%; padding: 18px 40px 8px 16px; border-radius: var(--radius-sm);
   background: var(--bg-input); border: 1.5px solid var(--border-subtle);
-  color: var(--text-primary); font-size: 0.95rem;
+  color: var(--text-primary); font-size: 16px;
   transition: all 0.3s var(--ease-out-expo);
+  -webkit-appearance: none;
 }
 .floating-select {
+  width: 100%; padding: 18px 54px 8px 16px; border-radius: var(--radius-sm);
+  background: var(--bg-input); border: 1.5px solid var(--border-subtle);
+  color: var(--text-primary); font-size: 16px;
+  transition: all 0.3s var(--ease-out-expo);
+  -webkit-appearance: none;
   appearance: none; cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2366bb6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px;
+  background-repeat: no-repeat; background-position: right 14px center;
 }
 .floating-select option { background: var(--bg-dark); color: var(--text-primary); }
+.floating-select:not(.has-value) { color: var(--text-dim) !important; }
 .floating-label {
   position: absolute; top: 14px; left: 16px; font-size: 0.92rem; color: var(--text-dim);
   pointer-events: none; transition: all 0.25s var(--ease-out-expo);
@@ -555,9 +567,10 @@ input, select, textarea { font-family: inherit; outline: none; }
 .floating-input:not(:placeholder-shown) + .floating-label {
   top: 4px; font-size: 0.7rem; color: var(--neon-green);
 }
-.floating-select:focus + .floating-label,
-.floating-select.has-value + .floating-label {
-  top: 4px; font-size: 0.7rem; color: var(--neon-green);
+.floating-select + .floating-label {
+  top: 4px !important;
+  font-size: 0.7rem !important;
+  color: var(--neon-green) !important;
 }
 
 /* Focus glow */
@@ -573,8 +586,8 @@ input, select, textarea { font-family: inherit; outline: none; }
   border-color: var(--error); box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.1);
 }
 .field-error {
-  width: 100%; font-size: 0.78rem; color: var(--error);
-  margin-top: 4px; padding: 4px 0 4px 52px;
+  width: 100%; max-width: 100%; font-size: 0.78rem; color: var(--error);
+  margin-top: 4px; margin-bottom: 4px; padding: 4px 0 4px 52px;
   box-sizing: border-box;
   word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
   display: flex; align-items: flex-start; gap: 6px;
@@ -587,7 +600,7 @@ input, select, textarea { font-family: inherit; outline: none; }
   padding: 14px 18px; border-radius: 8px; font-size: 0.9rem;
   margin-bottom: 24px; display: flex; align-items: flex-start; gap: 10px;
   animation: fadeInDown 0.4s var(--ease-out-expo);
-  width: 100%; box-sizing: border-box;
+  width: 100%; max-width: 100%; box-sizing: border-box;
   word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
 }
 .form-message svg { flex-shrink: 0; margin-top: 2px; }
@@ -602,6 +615,32 @@ input, select, textarea { font-family: inherit; outline: none; }
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-left: 3px solid #ef4444;
   color: #fca5a5;
+}
+
+/* Duplicate / Already Registered Error Box */
+.duplicate-error-box {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  border-left: 3px solid #ef4444 !important;
+  border-radius: 8px !important;
+  padding: 12px 14px !important;
+  color: #fca5a5 !important;
+  font-size: 13px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  margin-bottom: 24px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  animation: fadeInDown 0.4s var(--ease-out-expo) !important;
+}
+.duplicate-error-box svg {
+  flex-shrink: 0 !important;
+  margin-top: 2px !important;
 }
 
 /* =============================================
@@ -875,12 +914,12 @@ input, select, textarea { font-family: inherit; outline: none; }
 
   /* Form */
   .glass-form-card {
-    padding: 24px; width: 100%; margin: 0;
+    padding: 24px; width: 100%; max-width: 600px; margin: 0 auto;
     overflow: hidden; box-sizing: border-box;
   }
   .glass-form-card * { box-sizing: border-box; }
   .field-icon-wrapper { display: none; }
-  .field-error { padding-left: 0; }
+  .field-error { padding-left: 0; margin-bottom: 4px; }
   .register-page { padding: 100px 0 60px; }
 
   /* Form messages mobile */
@@ -896,6 +935,7 @@ input, select, textarea { font-family: inherit; outline: none; }
   /* Submit button */
   .btn-submit {
     width: 100%; min-height: 48px; font-size: 15px;
+    touch-action: manipulation;
   }
 
   /* Back link */
@@ -943,23 +983,36 @@ input, select, textarea { font-family: inherit; outline: none; }
 
   /* Form card tighter */
   .glass-form-card { padding: 16px; }
+  .form-title { font-size: clamp(1.2rem,5vw,1.8rem) !important; }
+  .floating-field { margin-bottom: 20px !important; }
 
   /* Input fields */
-  .floating-input, .floating-select {
-    padding: 16px 14px 8px;
-    font-size: 16px;
-    width: 100%;
+  .floating-input {
+    padding: 14px 40px 14px 14px !important;
+    font-size: 16px !important;
+    width: 100% !important;
+  }
+  .floating-select {
+    padding: 14px 54px 14px 14px !important;
+    font-size: 16px !important;
+    width: 100% !important;
+  }
+  .floating-label {
+    font-size: 13px !important;
   }
 
   /* Submit */
   .btn-submit {
-    padding: 14px 20px; font-size: 15px;
-    min-height: 48px;
+    width: 100% !important;
+    padding: 14px 20px !important;
+    font-size: 15px !important;
+    min-height: 48px !important;
+    touch-action: manipulation !important;
   }
 
   /* Form messages */
-  .form-message { padding: 12px 14px; font-size: 13px; }
-  .field-error { font-size: 12px; padding-left: 0; }
+  .form-message { padding: 12px !important; font-size: 13px !important; }
+  .field-error { font-size: 12px !important; padding-left: 0 !important; margin-bottom: 4px !important; }
 
   /* Event cards */
   .event-card { padding: 20px; }
@@ -992,7 +1045,14 @@ input, select, textarea { font-family: inherit; outline: none; }
 /* ---------- Mobile Small (380px) ---------- */
 @media (max-width: 380px) {
   .hero-title { font-size: 1.8rem; }
-  .glass-form-card { padding: 14px; }
+  .glass-form-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
   .coming-soon__card { padding: 24px 14px; }
   .success-card { padding: 16px; }
   .reg-number-text { font-size: 1.2rem; letter-spacing: 1px; }
@@ -1000,7 +1060,8 @@ input, select, textarea { font-family: inherit; outline: none; }
   .org-card { padding: 16px; }
   .org-card-heading { font-size: 1.05rem; }
   .event-card { padding: 16px; }
-  .floating-input, .floating-select { padding: 14px 12px 6px; }
+  .floating-input { padding: 14px 40px 6px 12px !important; }
+  .floating-select { padding: 14px 54px 6px 12px !important; }
   .hero-badge { font-size: 0.75rem; padding: 6px 14px; }
 }
 
@@ -2080,9 +2141,12 @@ input, select, textarea { font-family: inherit; outline: none; }
 
 /* Adjust floating-select padding for validation icon */
 .floating-field .field-input-wrapper { position: relative; }
-.floating-input:not(:placeholder-shown) ~ .field-validation-wrapper,
-.floating-select.has-value ~ .field-validation-wrapper {
+.floating-input:not(:placeholder-shown) ~ .field-validation-wrapper {
   display: flex;
+}
+.floating-select ~ .field-validation-wrapper {
+  display: flex;
+  right: 32px !important;
 }
 
 /* =============================================

@@ -7,6 +7,7 @@ import {
   PhoneIcon,
   IDCardIcon,
   GraduationIcon,
+  CalendarIcon,
   FieldTickIcon,
   FieldCrossIcon,
   Sparkles,
@@ -16,7 +17,7 @@ import {
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 const validatePhone = (phone) => /^\d{10}$/.test(phone);
 const validateNIC = (nic) => /^\d{12}$/.test(nic);
-const validateName = (name) => /^[a-zA-Z\s.'\\-]+$/.test(name.trim()) && name.trim().length >= 2;
+const validateName = (name) => /^[a-zA-Z\s.'\-]+$/.test(name.trim()) && name.trim().length >= 2;
 
 const INITIAL_FORM = {
   full_name: '',
@@ -24,7 +25,8 @@ const INITIAL_FORM = {
   email: '',
   telephone: '',
   nic_number: '',
-  faculty: 'Faculty of Humanities and Science',
+  faculty: '',
+  year_semester: '',
 };
 
 const FACULTIES = [
@@ -193,35 +195,33 @@ export default function RegistrationForm({
     }
     
     if (touched.faculty) s.faculty = form.faculty ? 'valid' : 'invalid';
+    if (touched.year_semester) s.year_semester = form.year_semester ? 'valid' : 'invalid';
     return s;
   }, [form, touched, duplicateErrors, checkingFields]);
 
   const validate = useCallback(() => {
     const errs = {};
-    if (!form.full_name.trim()) {
-      errs.full_name = 'Full name is required';
-    } else if (!validateName(form.full_name)) {
+    if (!validateName(form.full_name)) {
       errs.full_name = 'Name must contain only letters';
     }
     if (!form.sliit_reg_number.trim()) {
       errs.sliit_reg_number = 'SLIIT Registration Number is required';
     }
-    if (!form.email.trim()) {
-      errs.email = 'Email is required';
-    } else if (!validateEmail(form.email.trim())) {
+    if (!form.email.trim() || !validateEmail(form.email.trim())) {
       errs.email = 'Please enter a valid email address';
     }
-    if (!form.telephone.trim()) {
-      errs.telephone = 'Telephone number is required';
-    } else if (!validatePhone(form.telephone.trim())) {
+    if (!form.telephone.trim() || !validatePhone(form.telephone.trim())) {
       errs.telephone = 'Must be exactly 10 digits (numbers only)';
     }
-    if (!form.nic_number.trim()) {
-      errs.nic_number = 'NIC number is required';
-    } else if (!validateNIC(form.nic_number.trim())) {
+    if (!form.nic_number.trim() || !validateNIC(form.nic_number.trim())) {
       errs.nic_number = 'Must be exactly 12 digits (numbers only)';
     }
-    if (!form.faculty) errs.faculty = 'Please select your faculty';
+    if (!form.faculty) {
+      errs.faculty = 'Please select your faculty';
+    }
+    if (!form.year_semester) {
+      errs.year_semester = 'Please select your Year & Semester';
+    }
 
     // Mark all fields as touched on submit
     setTouched({
@@ -231,6 +231,7 @@ export default function RegistrationForm({
       telephone: true,
       nic_number: true,
       faculty: true,
+      year_semester: true,
     });
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -253,6 +254,7 @@ export default function RegistrationForm({
           p_telephone: form.telephone.trim(),
           p_nic_number: form.nic_number.trim(),
           p_faculty: form.faculty,
+          p_year_semester: form.year_semester,
         });
 
         if (error) {
@@ -354,8 +356,18 @@ export default function RegistrationForm({
       </div>
 
       {message && (
-        <div className={`form-message ${message.type}`} role="alert">
-          {message.type === 'success' ? <CheckCircleIcon /> : <AlertIcon />}
+        <div
+          className={
+            message.type === 'error' &&
+            ['already', 'duplicate', 'exists', 'registered'].some(kw =>
+              message.text?.toLowerCase().includes(kw)
+            )
+              ? 'duplicate-error-box'
+              : `form-message ${message.type}`
+          }
+          role="alert"
+        >
+          {message.type === 'success' ? <CheckCircleIcon /> : <AlertIcon size={16} />}
           <span>{message.text}</span>
         </div>
       )}
@@ -499,7 +511,9 @@ export default function RegistrationForm({
               value={form.faculty}
               onChange={handleChange}
               onBlur={handleBlur}
+              required
             >
+              <option value="" disabled>Select your Faculty</option>
               {FACULTIES.map((f) => (
                 <option key={f} value={f}>{f}</option>
               ))}
@@ -512,12 +526,47 @@ export default function RegistrationForm({
           {errors.faculty && <div className="field-error"><AlertIcon size={12} /> {errors.faculty}</div>}
         </div>
 
+        {/* Year & Semester */}
+        <div className={`floating-field ${errors.year_semester ? 'has-error' : ''}`}>
+          <div className="field-icon-wrapper">
+            <CalendarIcon />
+          </div>
+          <div className="field-input-wrapper">
+            <select
+              id={`${eventSlug}-year_semester`}
+              name="year_semester"
+              className={`floating-select ${form.year_semester ? 'has-value' : ''}`}
+              value={form.year_semester}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+            >
+              <option value="" disabled>Select your Year & Semester</option>
+              <option value="1st Year 1st Semester">1st Year 1st Semester</option>
+              <option value="1st Year 2nd Semester">1st Year 2nd Semester</option>
+              <option value="2nd Year 1st Semester">2nd Year 1st Semester</option>
+              <option value="2nd Year 2nd Semester">2nd Year 2nd Semester</option>
+              <option value="3rd Year 1st Semester">3rd Year 1st Semester</option>
+              <option value="3rd Year 2nd Semester">3rd Year 2nd Semester</option>
+              <option value="4th Year 1st Semester">4th Year 1st Semester</option>
+              <option value="4th Year 2nd Semester">4th Year 2nd Semester</option>
+            </select>
+            <label htmlFor={`${eventSlug}-year_semester`} className="floating-label floating-label--select">
+              Year & Semester <span className="required">*</span>
+            </label>
+            {renderValidationIcon('year_semester')}
+          </div>
+          {errors.year_semester && <div className="field-error"><AlertIcon size={12} /> {errors.year_semester}</div>}
+        </div>
+
         {/* Submit */}
         <button
           type="submit"
           className="btn btn-submit"
           disabled={submitting || hasDuplicateErrors || isChecking}
           id={`${eventSlug}-submit-btn`}
+          aria-busy={submitting ? "true" : undefined}
+          aria-label={submitting ? "Registering, please wait" : undefined}
         >
           {submitting ? (
             <>

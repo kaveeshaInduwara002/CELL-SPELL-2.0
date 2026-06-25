@@ -118,6 +118,7 @@ CREATE TABLE registrations (
     'Faculty of Computing',
     'Business School'
   )),
+  year_semester TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
 
   -- Same student can register for different events, but not twice for the same event
@@ -250,7 +251,8 @@ CREATE OR REPLACE FUNCTION submit_registration(
   p_email TEXT,
   p_telephone TEXT,
   p_nic_number TEXT,
-  p_faculty TEXT
+  p_faculty TEXT,
+  p_year_semester TEXT
 )
 RETURNS JSON
 LANGUAGE plpgsql
@@ -316,6 +318,19 @@ BEGIN
     RETURN json_build_object('success', false, 'error', 'Invalid faculty selection.');
   END IF;
 
+  IF p_year_semester NOT IN (
+    '1st Year 1st Semester',
+    '1st Year 2nd Semester',
+    '2nd Year 1st Semester',
+    '2nd Year 2nd Semester',
+    '3rd Year 1st Semester',
+    '3rd Year 2nd Semester',
+    '4th Year 1st Semester',
+    '4th Year 2nd Semester'
+  ) THEN
+    RETURN json_build_object('success', false, 'error', 'Invalid Year & Semester selection.');
+  END IF;
+
   -- PREEMPTIVE CHECKS FOR DUPLICATES
   IF EXISTS (
     SELECT 1 FROM registrations 
@@ -348,10 +363,10 @@ BEGIN
   -- Insert (trigger will generate registration_id)
   INSERT INTO registrations (
     event_slug, full_name, sliit_reg_number,
-    email, telephone, nic_number, faculty
+    email, telephone, nic_number, faculty, year_semester
   ) VALUES (
     p_event_slug, v_clean_name, v_clean_sliit,
-    v_clean_email, v_clean_phone, v_clean_nic, p_faculty
+    v_clean_email, v_clean_phone, v_clean_nic, p_faculty, p_year_semester
   )
   RETURNING registration_id INTO v_reg_id;
 
@@ -443,6 +458,7 @@ CREATE OR REPLACE FUNCTION admin_get_registrations(
   p_event_slug TEXT DEFAULT NULL,
   p_search TEXT DEFAULT NULL,
   p_faculty TEXT DEFAULT NULL,
+  p_year_semester TEXT DEFAULT NULL,
   p_limit INT DEFAULT 50,
   p_offset INT DEFAULT 0
 )
@@ -465,6 +481,7 @@ BEGIN
   FROM registrations r
   WHERE (p_event_slug IS NULL OR r.event_slug = p_event_slug)
     AND (p_faculty IS NULL OR r.faculty = p_faculty)
+    AND (p_year_semester IS NULL OR r.year_semester = p_year_semester)
     AND (p_search IS NULL OR (
       r.full_name ILIKE '%' || p_search || '%'
       OR r.email ILIKE '%' || p_search || '%'
@@ -480,12 +497,13 @@ BEGIN
       r.id, r.registration_id, r.event_slug,
       e.name AS event_name,
       r.full_name, r.sliit_reg_number, r.email,
-      r.telephone, r.nic_number, r.faculty,
+      r.telephone, r.nic_number, r.faculty, r.year_semester,
       r.created_at
     FROM registrations r
     JOIN events e ON e.slug = r.event_slug
     WHERE (p_event_slug IS NULL OR r.event_slug = p_event_slug)
       AND (p_faculty IS NULL OR r.faculty = p_faculty)
+      AND (p_year_semester IS NULL OR r.year_semester = p_year_semester)
       AND (p_search IS NULL OR (
         r.full_name ILIKE '%' || p_search || '%'
         OR r.email ILIKE '%' || p_search || '%'
@@ -504,7 +522,7 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION admin_get_registrations TO authenticated;
+GRANT EXECUTE ON FUNCTION admin_get_registrations(TEXT, TEXT, TEXT, TEXT, INT, INT) TO authenticated;
 
 -- -----------------------------------------------
 -- Email Stub (Phase 4 placeholder)

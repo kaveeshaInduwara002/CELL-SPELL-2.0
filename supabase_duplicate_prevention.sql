@@ -93,7 +93,8 @@ CREATE OR REPLACE FUNCTION submit_registration(
   p_email TEXT,
   p_telephone TEXT,
   p_nic_number TEXT,
-  p_faculty TEXT
+  p_faculty TEXT,
+  p_year_semester TEXT
 )
 RETURNS JSON
 LANGUAGE plpgsql
@@ -159,6 +160,19 @@ BEGIN
     RETURN json_build_object('success', false, 'error', 'Invalid faculty selection.');
   END IF;
 
+  IF p_year_semester NOT IN (
+    '1st Year 1st Semester',
+    '1st Year 2nd Semester',
+    '2nd Year 1st Semester',
+    '2nd Year 2nd Semester',
+    '3rd Year 1st Semester',
+    '3rd Year 2nd Semester',
+    '4th Year 1st Semester',
+    '4th Year 2nd Semester'
+  ) THEN
+    RETURN json_build_object('success', false, 'error', 'Invalid Year & Semester selection.');
+  END IF;
+
   -- PREEMPTIVE CHECKS FOR DUPLICATES
   IF EXISTS (
     SELECT 1 FROM registrations 
@@ -191,10 +205,10 @@ BEGIN
   -- Insert (trigger will generate registration_id)
   INSERT INTO registrations (
     event_slug, full_name, sliit_reg_number,
-    email, telephone, nic_number, faculty
+    email, telephone, nic_number, faculty, year_semester
   ) VALUES (
     p_event_slug, v_clean_name, v_clean_sliit,
-    v_clean_email, v_clean_phone, v_clean_nic, p_faculty
+    v_clean_email, v_clean_phone, v_clean_nic, p_faculty, p_year_semester
   )
   RETURNING registration_id INTO v_reg_id;
 
