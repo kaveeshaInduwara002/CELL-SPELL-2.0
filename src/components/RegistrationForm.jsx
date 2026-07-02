@@ -289,6 +289,19 @@ export default function RegistrationForm({
           // Store in sessionStorage for refresh resilience
           sessionStorage.setItem('lastRegistrationRef', regId);
 
+          // Fire-and-forget: send confirmation email via Vercel serverless function.
+          // This does NOT block the user's redirect — if the email fails,
+          // the registration is still saved and the failure is logged server-side.
+          fetch('/api/send-confirmation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ registration_id: regId }),
+          }).catch((emailErr) => {
+            // Silently catch — email failure should never affect the user experience.
+            // The server logs the error to the email_logs table for manual follow-up.
+            console.warn('Confirmation email request failed (registration is still saved):', emailErr);
+          });
+
           // Navigate to success page with registration data
           navigate(`/success?ref=${encodeURIComponent(regId)}`, {
             state: {
