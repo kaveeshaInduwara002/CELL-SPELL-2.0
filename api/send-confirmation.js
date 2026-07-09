@@ -8,7 +8,7 @@
 //   1. Validates the request (requires registration_id)
 //   2. Fetches the registration from Supabase (using service role key)
 //   3. Generates the appropriate HTML email template
-//   4. Sends the email via Resend
+//   4. Sends the email via Brevo SMTP (Nodemailer)
 //   5. Logs the result to the email_logs table
 //   6. Returns success/failure (registration is already saved regardless)
 //
@@ -17,15 +17,14 @@
 // ============================================================
 
 import { supabaseAdmin } from './lib/supabase.js';
-import { resend } from './lib/resend.js';
+import { transporter, EMAIL_FROM } from './lib/mailer.js';
 import {
-  EMAIL_FROM,
   workshopConfirmationTemplate,
   industryVisitConfirmationTemplate,
 } from './lib/emailTemplates.js';
 
 // -------------------------------------------------------
-// CUSTOMIZE: Update email subjects per event type
+// Email subjects per event type
 // -------------------------------------------------------
 const EMAIL_SUBJECTS = {
   workshop: '🧬 Workshop Registration Confirmed — Cell Spell 2.0',
@@ -127,21 +126,28 @@ export default async function handler(req, res) {
     }
 
     // -------------------------------------------------------
-    // 6. Send the email via Resend
+    // 6. Send the email via Brevo SMTP (Nodemailer)
     // -------------------------------------------------------
-    const { data: emailData, error: emailError } = await resend.emails.send({
-      from: EMAIL_FROM,
-      to: registration.email,
-      subject: subject,
-      html: htmlBody,
-    });
+    let emailResult;
+    let emailError = null;
+
+    try {
+      emailResult = await transporter.sendMail({
+        from: EMAIL_FROM,
+        to: registration.email,
+        subject: subject,
+        html: htmlBody,
+      });
+    } catch (err) {
+      emailError = err;
+    }
 
     // -------------------------------------------------------
     // 7. Log the result to email_logs table
     // -------------------------------------------------------
     if (emailError) {
       // Email sending failed — log the error
-      console.error('[send-confirmation] Resend error:', emailError);
+      console.error('[send-confirmation] Brevo SMTP error:', emailError.message);
 
       await supabaseAdmin.from('email_logs').insert({
         registration_id: registration.registration_id,
@@ -149,7 +155,7 @@ export default async function handler(req, res) {
         recipient_email: registration.email,
         status: 'failed',
         resend_id: null,
-        error_message: emailError.message || JSON.stringify(emailError),
+        error_message: emailError.message || 'Unknown SMTP error',
       });
 
       // Return success to the user (registration is saved),
@@ -162,21 +168,23 @@ export default async function handler(req, res) {
     }
 
     // Email sent successfully — log it
+    const messageId = emailResult?.messageId || null;
+
     await supabaseAdmin.from('email_logs').insert({
       registration_id: registration.registration_id,
       event_slug: registration.event_slug,
       recipient_email: registration.email,
       status: 'sent',
-      resend_id: emailData?.id || null,
+      resend_id: messageId, // Reusing the column for Gmail message ID
       error_message: null,
     });
 
-    console.log(`[send-confirmation] Email sent to ${registration.email} (Resend ID: ${emailData?.id})`);
+    console.log(`[send-confirmation] ✅ Email sent successfully via Brevo to ${registration.email} (Message ID: ${messageId})`);
 
     return res.status(200).json({
       success: true,
       emailSent: true,
-      resendId: emailData?.id,
+      messageId: messageId,
     });
   } catch (err) {
     // -------------------------------------------------------

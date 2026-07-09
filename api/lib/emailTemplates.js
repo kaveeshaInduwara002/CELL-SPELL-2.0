@@ -4,18 +4,7 @@
 // Beautiful, responsive HTML email templates for registration
 // confirmation. Uses inline CSS for maximum email client
 // compatibility (Gmail, Outlook, Apple Mail, Yahoo, etc.)
-//
-// CUSTOMIZE: Search for "CUSTOMIZE" comments to find all
-// placeholders you need to update before going live.
 // ============================================================
-
-// -------------------------------------------------------
-// No verified domain yet — using Resend's free test sender.
-// This works immediately, no DNS setup needed.
-// When you get a domain, verify it at https://resend.com/domains
-// and update the address below.
-// -------------------------------------------------------
-export const EMAIL_FROM = 'Cell Spell 2.0 <onboarding@resend.dev>';
 
 // -------------------------------------------------------
 // Shared styles and components used by both templates
