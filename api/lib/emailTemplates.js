@@ -86,8 +86,12 @@ function getHeaderHtml(eventEmoji, eventTitle, eventSubtitle) {
             <td align="center" style="padding-bottom:20px;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td style="background-color:${C.bgSurface};border:1px solid ${C.neonBorder};border-radius:14px;padding:12px 18px;text-align:center;">
-                    <span style="font-size:28px;line-height:1;">${eventEmoji}</span>
+                  <td style="background-color:${C.bgSurface};border:2px solid ${C.neonBorder};border-radius:50%;padding:4px;text-align:center;width:80px;height:80px;overflow:hidden;">
+                    <img src="https://cell-spell-2-0.vercel.app/cell-spell-logo.jpg"
+                         alt="Cell Spell 2.0"
+                         width="80"
+                         height="80"
+                         style="display:block;width:80px;height:80px;border-radius:50%;object-fit:cover;border:0;outline:none;text-decoration:none;" />
                   </td>
                 </tr>
               </table>
