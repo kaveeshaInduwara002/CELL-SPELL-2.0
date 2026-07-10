@@ -133,9 +133,9 @@ input[name="sliit_reg_number"] {
   transition: opacity 0.8s var(--ease-out-expo), visibility 0.8s;
 }
 .loading-screen.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
-.loading-blob-container { position: relative; width: 120px; height: 120px; margin-bottom: 32px; }
+.loading-blob-container { position: relative; width: 120px; height: 120px; margin-bottom: 50px; }
 .loading-blob-image {
-  width: 120px;
+  width: 90px;
   height: auto;
   position: absolute;
   top: 50%;
