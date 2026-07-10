@@ -4,7 +4,7 @@ export default function LoadingScreen({ loading }) {
   return (
     <div className={`loading-screen ${!loading ? 'fade-out' : ''}`}>
       <div className="loading-blob-container">
-        <div className="loading-blob" />
+        <img src="/loading-blob.png" alt="Cell Spell Logo" className="loading-blob-image" />
         <span className="sparkle" />
         <span className="sparkle" />
         <span className="sparkle" />

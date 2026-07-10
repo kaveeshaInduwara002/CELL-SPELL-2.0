@@ -134,23 +134,15 @@ input[name="sliit_reg_number"] {
 }
 .loading-screen.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
 .loading-blob-container { position: relative; width: 120px; height: 120px; margin-bottom: 32px; }
-.loading-blob {
-  width: 80px; height: 80px; position: absolute; top: 50%; left: 50%;
+.loading-blob-image {
+  width: 120px;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  border-radius: 50% 40% 60% 45% / 55% 50% 45% 50%;
-  background: radial-gradient(circle at 35% 35%, var(--neon-green), var(--green-500) 40%, var(--green-800) 70%, transparent 100%);
-  box-shadow: 0 0 40px var(--neon-glow), 0 0 80px rgba(57, 255, 20, 0.15), inset 0 0 20px rgba(57, 255, 20, 0.3);
-  animation: blobBounce 1.6s var(--ease-spring) infinite, blobMorph 3s ease-in-out infinite;
-}
-.loading-blob::before {
-  content: ''; position: absolute; width: 20px; height: 14px; top: 18px; left: 22px;
-  border-radius: 50%; background: rgba(255, 255, 255, 0.5); filter: blur(3px);
-}
-.loading-blob::after {
-  content: ''; position: absolute; width: 22px; height: 22px; top: 50%; left: 50%;
-  transform: translate(-50%, -50%); border-radius: 50%;
-  background: radial-gradient(circle, var(--green-900) 30%, transparent 70%);
-  border: 1.5px solid rgba(57, 255, 20, 0.3);
+  filter: drop-shadow(0 0 15px rgba(57, 255, 20, 0.35)) drop-shadow(0 0 35px rgba(57, 255, 20, 0.15));
+  animation: blobFloat 3s ease-in-out infinite;
 }
 .sparkle {
   position: absolute; width: 4px; height: 4px; border-radius: 50%;
@@ -168,12 +160,19 @@ input[name="sliit_reg_number"] {
 }
 .loading-text span { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-glow); }
 
-@keyframes blobBounce { 0%, 100% { transform: translate(-50%, -50%) translateY(0); } 50% { transform: translate(-50%, -50%) translateY(-18px); } }
-@keyframes blobMorph {
-  0%, 100% { border-radius: 50% 40% 60% 45% / 55% 50% 45% 50%; }
-  25% { border-radius: 45% 55% 50% 50% / 50% 45% 55% 50%; }
-  50% { border-radius: 55% 45% 45% 55% / 45% 55% 50% 50%; }
-  75% { border-radius: 40% 55% 55% 45% / 55% 45% 45% 55%; }
+@keyframes blobFloat {
+  0% {
+    transform: translate(-50%, -50%) translateY(0) scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 15px rgba(57, 255, 20, 0.35)) drop-shadow(0 0 35px rgba(57, 255, 20, 0.15));
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-15px) scale(1.06) rotate(6deg);
+    filter: drop-shadow(0 0 25px rgba(57, 255, 20, 0.55)) drop-shadow(0 0 50px rgba(57, 255, 20, 0.25));
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(0) scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 15px rgba(57, 255, 20, 0.35)) drop-shadow(0 0 35px rgba(57, 255, 20, 0.15));
+  }
 }
 @keyframes sparkleFloat { 0%, 100% { opacity: 0.3; transform: scale(0.6) translateY(0); } 50% { opacity: 1; transform: scale(1.2) translateY(-8px); } }
 @keyframes textPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
