@@ -18,6 +18,7 @@
 // -------------------------------------------------------
 // Color palette (matches site CSS custom properties)
 // -------------------------------------------------------
+// Dark theme palette (used as hardcoded inline styles — the base render)
 const C = {
   bgOuter:    '#050a05',  // --bg-deep
   bgInner:    '#0a120a',  // --bg-dark
@@ -37,6 +38,24 @@ const C = {
   white:      '#ffffff',
 };
 
+// Light theme palette (applied via @media (prefers-color-scheme: light) in <style>)
+// Neon green is darkened for legibility on white backgrounds.
+const CL = {
+  bgOuter:    '#eef2ee',
+  bgInner:    '#ffffff',
+  bgCard:     '#f8faf8',
+  bgSurface:  '#edf5ed',
+  neon:       '#18a300',  // darkened neon green — readable on white
+  neonBorder: 'rgba(24,163,0,0.25)',
+  neonFaint:  'rgba(24,163,0,0.10)',
+  textPri:    '#1a2e1a',
+  textSec:    '#2e5c2e',
+  textMuted:  '#3a7a3a',
+  textDim:    '#5a8a5a',
+  success:    '#16a34a',
+  white:      '#ffffff',
+};
+
 const FONT = "Arial, Helvetica, 'Segoe UI', sans-serif";
 const FONT_MONO = "'Courier New', Courier, monospace";
 
@@ -45,8 +64,11 @@ const FONT_MONO = "'Courier New', Courier, monospace";
 // Only for clients that support embedded CSS (Apple Mail,
 // Gmail app, etc.). Layout is fully functional without it.
 // -------------------------------------------------------
-function getResponsiveStyles() {
+function getEmailStyles() {
   return `
+    /* =====================================================
+       MOBILE RESPONSIVE
+       ===================================================== */
     @media only screen and (max-width: 600px) {
       .email-outer { padding: 8px !important; }
       .email-inner { border-radius: 12px !important; }
@@ -56,6 +78,85 @@ function getResponsiveStyles() {
       .hero-title { font-size: 22px !important; }
       .reg-id-text { font-size: 24px !important; }
     }
+
+    /* =====================================================
+       DARK MODE
+       Lock in the dark palette — prevents mail clients
+       from auto-inverting our already-dark email.
+       ===================================================== */
+    @media (prefers-color-scheme: dark) {
+      body, .email-body          { background-color: ${C.bgOuter} !important; color: ${C.textPri} !important; }
+      .email-outer-td            { background-color: ${C.bgOuter} !important; }
+      .email-inner               { background-color: ${C.bgInner} !important; border-color: ${C.neonBorder} !important; }
+      .email-header              { background-color: ${C.bgCard} !important; border-bottom-color: ${C.neonBorder} !important; }
+      .email-card                { background-color: ${C.bgCard} !important; border-color: ${C.neonBorder} !important; }
+      .email-card-faint          { background-color: ${C.bgCard} !important; border-color: ${C.neonFaint} !important; }
+      .email-surface             { background-color: ${C.bgSurface} !important; border-color: ${C.neonBorder} !important; }
+      .email-wa-card             { background-color: #061a0c !important; border-color: rgba(37,211,102,0.30) !important; }
+      .email-icon-cell           { background-color: ${C.bgSurface} !important; border-color: ${C.neonFaint} !important; }
+      .email-reg-id-badge        { background-color: ${C.bgSurface} !important; border-color: ${C.neon} !important; }
+      .c-neon                    { color: ${C.neon} !important; }
+      .c-text-pri                { color: ${C.textPri} !important; }
+      .c-text-sec                { color: ${C.textSec} !important; }
+      .c-text-muted              { color: ${C.textMuted} !important; }
+      .c-text-dim                { color: ${C.textDim} !important; }
+      .c-success                 { color: ${C.success} !important; }
+    }
+
+    /* =====================================================
+       LIGHT MODE
+       Override inline dark styles with light palette.
+       ===================================================== */
+    @media (prefers-color-scheme: light) {
+      body, .email-body          { background-color: ${CL.bgOuter} !important; color: ${CL.textPri} !important; }
+      .email-outer-td            { background-color: ${CL.bgOuter} !important; }
+      .email-inner               { background-color: ${CL.bgInner} !important; border-color: ${CL.neonBorder} !important; }
+      .email-header              { background-color: ${CL.bgCard} !important; border-bottom-color: ${CL.neonBorder} !important; }
+      .email-card                { background-color: ${CL.bgCard} !important; border-color: ${CL.neonBorder} !important; }
+      .email-card-faint          { background-color: ${CL.bgCard} !important; border-color: ${CL.neonFaint} !important; }
+      .email-surface             { background-color: ${CL.bgSurface} !important; border-color: ${CL.neonBorder} !important; }
+      .email-wa-card             { background-color: #e8f5e9 !important; border-color: rgba(37,211,102,0.40) !important; }
+      .email-icon-cell           { background-color: ${CL.bgSurface} !important; border-color: ${CL.neonFaint} !important; }
+      .email-reg-id-badge        { background-color: ${CL.bgSurface} !important; border-color: ${CL.neon} !important; }
+      .c-neon                    { color: ${CL.neon} !important; }
+      .c-text-pri                { color: ${CL.textPri} !important; }
+      .c-text-sec                { color: ${CL.textSec} !important; }
+      .c-text-muted              { color: ${CL.textMuted} !important; }
+      .c-text-dim                { color: ${CL.textDim} !important; }
+      .c-success                 { color: ${CL.success} !important; }
+    }
+
+    /* =====================================================
+       OUTLOOK / GMAIL DARK MODE FORCED-INVERSION GUARD
+       [data-ogsc] = Outlook dark mode
+       [data-ogsb] = Outlook dark mode (body bg)
+       These prevent Outlook/Gmail from re-inverting our
+       already-correct dark email for dark-mode users.
+       ===================================================== */
+    [data-ogsc] body, [data-ogsc] .email-body,
+    [data-ogsb] body, [data-ogsb] .email-body   { background-color: ${C.bgOuter} !important; color: ${C.textPri} !important; }
+    [data-ogsc] .email-outer-td,
+    [data-ogsb] .email-outer-td                 { background-color: ${C.bgOuter} !important; }
+    [data-ogsc] .email-inner,
+    [data-ogsb] .email-inner                    { background-color: ${C.bgInner} !important; border-color: ${C.neonBorder} !important; }
+    [data-ogsc] .email-header,
+    [data-ogsb] .email-header                   { background-color: ${C.bgCard} !important; border-bottom-color: ${C.neonBorder} !important; }
+    [data-ogsc] .email-card,
+    [data-ogsb] .email-card                     { background-color: ${C.bgCard} !important; border-color: ${C.neonBorder} !important; }
+    [data-ogsc] .email-card-faint,
+    [data-ogsb] .email-card-faint               { background-color: ${C.bgCard} !important; border-color: ${C.neonFaint} !important; }
+    [data-ogsc] .email-surface,
+    [data-ogsb] .email-surface                  { background-color: ${C.bgSurface} !important; border-color: ${C.neonBorder} !important; }
+    [data-ogsc] .email-reg-id-badge,
+    [data-ogsb] .email-reg-id-badge             { background-color: ${C.bgSurface} !important; border-color: ${C.neon} !important; }
+    [data-ogsc] .email-icon-cell,
+    [data-ogsb] .email-icon-cell                { background-color: ${C.bgSurface} !important; border-color: ${C.neonFaint} !important; }
+    [data-ogsc] .c-neon, [data-ogsb] .c-neon   { color: ${C.neon} !important; }
+    [data-ogsc] .c-text-pri, [data-ogsb] .c-text-pri   { color: ${C.textPri} !important; }
+    [data-ogsc] .c-text-sec, [data-ogsb] .c-text-sec   { color: ${C.textSec} !important; }
+    [data-ogsc] .c-text-muted, [data-ogsb] .c-text-muted { color: ${C.textMuted} !important; }
+    [data-ogsc] .c-text-dim, [data-ogsb] .c-text-dim   { color: ${C.textDim} !important; }
+    [data-ogsc] .c-success, [data-ogsb] .c-success     { color: ${C.success} !important; }
   `;
 }
 
@@ -79,14 +180,14 @@ function getHeaderHtml(eventEmoji, eventTitle, eventSubtitle) {
   return `
     <!-- HEADER -->
     <tr>
-      <td align="center" class="hero-pad" style="padding:44px 40px 36px;background-color:${C.bgCard};border-bottom:2px solid ${C.neonBorder};">
+      <td align="center" class="hero-pad email-header" style="padding:44px 40px 36px;background-color:${C.bgCard};border-bottom:2px solid ${C.neonBorder};">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
           <!-- Logo / brand badge -->
           <tr>
             <td align="center" style="padding-bottom:20px;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td style="background-color:${C.bgSurface};border:2px solid ${C.neonBorder};border-radius:50%;padding:4px;text-align:center;width:80px;height:80px;overflow:hidden;">
+                  <td class="email-surface" style="background-color:${C.bgSurface};border:2px solid ${C.neonBorder};border-radius:50%;padding:4px;text-align:center;width:80px;height:80px;overflow:hidden;">
                     <img src="https://cell-spell-2-0.vercel.app/cell-spell-logo.jpg"
                          alt="Cell Spell 2.0"
                          width="80"
@@ -100,7 +201,7 @@ function getHeaderHtml(eventEmoji, eventTitle, eventSubtitle) {
           <!-- Event title -->
           <tr>
             <td align="center">
-              <h1 class="hero-title" style="margin:0 0 6px;font-family:${FONT};font-size:26px;font-weight:700;color:${C.neon};letter-spacing:-0.3px;line-height:1.2;">
+              <h1 class="hero-title c-neon" style="margin:0 0 6px;font-family:${FONT};font-size:26px;font-weight:700;color:${C.neon};letter-spacing:-0.3px;line-height:1.2;">
                 ${eventTitle}
               </h1>
             </td>
@@ -108,7 +209,7 @@ function getHeaderHtml(eventEmoji, eventTitle, eventSubtitle) {
           <!-- Subtitle -->
           <tr>
             <td align="center" style="padding-top:4px;">
-              <p style="margin:0;font-family:${FONT};font-size:15px;color:${C.textSec};line-height:1.5;">
+              <p class="c-text-sec" style="margin:0;font-family:${FONT};font-size:15px;color:${C.textSec};line-height:1.5;">
                 ${eventSubtitle}
               </p>
             </td>
@@ -133,29 +234,29 @@ function getSuccessBadgeHtml(registrationId) {
     <!-- REGISTRATION CONFIRMED BADGE -->
     <tr>
       <td align="center" class="content-pad" style="padding:32px 40px 8px;">
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="border:1px solid ${C.neonBorder};border-radius:14px;background-color:${C.bgCard};">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="email-card" style="border:1px solid ${C.neonBorder};border-radius:14px;background-color:${C.bgCard};">
           <tr>
             <td align="center" style="padding:28px 36px;">
               <!-- Checkmark -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td align="center" style="width:52px;height:52px;border-radius:50%;background-color:rgba(57,255,20,0.10);border:2px solid ${C.neonBorder};font-size:26px;line-height:52px;text-align:center;">
+                  <td align="center" class="email-surface" style="width:52px;height:52px;border-radius:50%;background-color:rgba(57,255,20,0.10);border:2px solid ${C.neonBorder};font-size:26px;line-height:52px;text-align:center;">
                     &#x2714;&#xFE0F;
                   </td>
                 </tr>
               </table>
               <!-- Heading -->
-              <h2 style="margin:16px 0 4px;font-family:${FONT};font-size:20px;font-weight:700;color:${C.success};letter-spacing:0.3px;">
+              <h2 class="c-success" style="margin:16px 0 4px;font-family:${FONT};font-size:20px;font-weight:700;color:${C.success};letter-spacing:0.3px;">
                 Registration Confirmed!
               </h2>
-              <p style="margin:0 0 14px;font-family:${FONT};font-size:13px;color:${C.textDim};text-transform:uppercase;letter-spacing:1.5px;">
+              <p class="c-text-dim" style="margin:0 0 14px;font-family:${FONT};font-size:13px;color:${C.textDim};text-transform:uppercase;letter-spacing:1.5px;">
                 Your Registration ID
               </p>
               <!-- Registration ID badge -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td align="center" style="background-color:${C.bgSurface};border:2px solid ${C.neon};border-radius:10px;padding:12px 28px;">
-                    <span class="reg-id-text" style="font-family:${FONT_MONO};font-size:28px;font-weight:700;color:${C.neon};letter-spacing:3px;">
+                  <td align="center" class="email-reg-id-badge" style="background-color:${C.bgSurface};border:2px solid ${C.neon};border-radius:10px;padding:12px 28px;">
+                    <span class="reg-id-text c-neon" style="font-family:${FONT_MONO};font-size:28px;font-weight:700;color:${C.neon};letter-spacing:3px;">
                       ${registrationId}
                     </span>
                   </td>
@@ -177,10 +278,10 @@ function getGreetingHtml(fullName) {
     <!-- GREETING -->
     <tr>
       <td class="content-pad" style="padding:28px 40px 0;">
-        <p style="margin:0;font-family:${FONT};font-size:16px;line-height:1.6;color:${C.textPri};">
-          Hi <strong style="color:${C.neon};">${fullName}</strong>,
+        <p class="c-text-pri" style="margin:0;font-family:${FONT};font-size:16px;line-height:1.6;color:${C.textPri};">
+          Hi <strong class="c-neon" style="color:${C.neon};">${fullName}</strong>,
         </p>
-        <p style="margin:10px 0 0;font-family:${FONT};font-size:16px;line-height:1.7;color:${C.textSec};">
+        <p class="c-text-sec" style="margin:10px 0 0;font-family:${FONT};font-size:16px;line-height:1.7;color:${C.textSec};">
           Thank you for registering! We're thrilled to have you join us. Here are your event details &mdash; please save this email for reference.
         </p>
       </td>
@@ -194,13 +295,13 @@ function getGreetingHtml(fullName) {
 function detailCell(label, value) {
   return `
     <td class="detail-cell" style="width:50%;vertical-align:top;padding:6px;" valign="top">
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:${C.bgCard};border:1px solid ${C.neonFaint};border-radius:10px;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-card-faint" style="background-color:${C.bgCard};border:1px solid ${C.neonFaint};border-radius:10px;">
         <tr>
           <td style="padding:14px 16px;">
-            <p style="margin:0 0 4px;font-family:${FONT};font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:${C.textDim};">
+            <p class="c-text-dim" style="margin:0 0 4px;font-family:${FONT};font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:${C.textDim};">
               ${label}
             </p>
-            <p style="margin:0;font-family:${FONT};font-size:15px;font-weight:500;color:${C.textPri};line-height:1.4;">
+            <p class="c-text-pri" style="margin:0;font-family:${FONT};font-size:15px;font-weight:500;color:${C.textPri};line-height:1.4;">
               ${value}
             </p>
           </td>
@@ -218,7 +319,7 @@ function getDetailsGridHtml({ eventDate, eventVenue, faculty, yearSemester, slii
     <!-- EVENT DETAILS -->
     <tr>
       <td class="content-pad" style="padding:24px 40px;">
-        <h3 style="margin:0 0 14px;font-family:${FONT};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${C.neon};">
+        <h3 class="c-neon" style="margin:0 0 14px;font-family:${FONT};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${C.neon};">
           &#x1F4C5; Event Details
         </h3>
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -249,9 +350,9 @@ function getExpectationsHtml(sectionTitle, items) {
       (item) => `
         <tr>
           <td style="padding:6px 0;vertical-align:top;width:22px;" valign="top">
-            <span style="font-family:${FONT};font-size:14px;color:${C.neon};line-height:1.6;">&#x25B8;</span>
+            <span class="c-neon" style="font-family:${FONT};font-size:14px;color:${C.neon};line-height:1.6;">&#x25B8;</span>
           </td>
-          <td style="padding:6px 0 6px 8px;font-family:${FONT};font-size:15px;color:${C.textSec};line-height:1.6;">
+          <td class="c-text-sec" style="padding:6px 0 6px 8px;font-family:${FONT};font-size:15px;color:${C.textSec};line-height:1.6;">
             ${item}
           </td>
         </tr>`
@@ -262,10 +363,10 @@ function getExpectationsHtml(sectionTitle, items) {
     <!-- WHAT TO EXPECT -->
     <tr>
       <td class="content-pad" style="padding:0 40px 24px;">
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:${C.bgCard};border:1px solid ${C.neonFaint};border-radius:12px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-card-faint" style="background-color:${C.bgCard};border:1px solid ${C.neonFaint};border-radius:12px;">
           <tr>
             <td style="padding:22px 24px;">
-              <h3 style="margin:0 0 12px;font-family:${FONT};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${C.neon};">
+              <h3 class="c-neon" style="margin:0 0 12px;font-family:${FONT};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${C.neon};">
                 ${sectionTitle}
               </h3>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -290,13 +391,13 @@ function getInstructionsHtml(items) {
           <td style="padding:8px 0;vertical-align:top;width:32px;" valign="top">
             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
               <tr>
-                <td style="width:26px;height:26px;border-radius:7px;background-color:${C.bgSurface};border:1px solid ${C.neonFaint};text-align:center;font-size:13px;line-height:26px;">
+                <td class="email-icon-cell" style="width:26px;height:26px;border-radius:7px;background-color:${C.bgSurface};border:1px solid ${C.neonFaint};text-align:center;font-size:13px;line-height:26px;">
                   ${item.icon}
                 </td>
               </tr>
             </table>
           </td>
-          <td style="padding:8px 0 8px 10px;font-family:${FONT};font-size:15px;color:${C.textSec};line-height:1.6;vertical-align:top;" valign="top">
+          <td class="c-text-sec" style="padding:8px 0 8px 10px;font-family:${FONT};font-size:15px;color:${C.textSec};line-height:1.6;vertical-align:top;" valign="top">
             ${item.text}
           </td>
         </tr>`
@@ -307,10 +408,10 @@ function getInstructionsHtml(items) {
     <!-- IMPORTANT INSTRUCTIONS -->
     <tr>
       <td class="content-pad" style="padding:0 40px 28px;">
-        <h3 style="margin:0 0 14px;font-family:${FONT};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${C.neon};">
+        <h3 class="c-neon" style="margin:0 0 14px;font-family:${FONT};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${C.neon};">
           &#x1F4CB; Important Instructions
         </h3>
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:${C.bgCard};border:1px solid ${C.neonFaint};border-radius:12px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-card-faint" style="background-color:${C.bgCard};border:1px solid ${C.neonFaint};border-radius:12px;">
           <tr>
             <td style="padding:18px 20px;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -348,9 +449,9 @@ function getFooterHtml() {
           </tr>
           <tr>
             <td align="center" style="padding:4px 40px;">
-              <p style="margin:0;font-family:${FONT};font-size:14px;color:${C.textMuted};line-height:1.5;">
+              <p class="c-text-muted" style="margin:0;font-family:${FONT};font-size:14px;color:${C.textMuted};line-height:1.5;">
                 Questions? Reach out at
-                <a href="mailto:cellspell@sliit.lk" style="color:${C.neon};text-decoration:underline;">cellspell@sliit.lk</a>
+                <a href="mailto:cellspell@sliit.lk" class="c-neon" style="color:${C.neon};text-decoration:underline;">cellspell@sliit.lk</a>
               </p>
             </td>
           </tr>
@@ -367,7 +468,7 @@ function getFooterHtml() {
           </tr>
           <tr>
             <td align="center" style="padding:0 40px;">
-              <p style="margin:0;font-family:${FONT};font-size:12px;color:${C.textDim};line-height:1.5;">
+              <p class="c-text-dim" style="margin:0;font-family:${FONT};font-size:12px;color:${C.textDim};line-height:1.5;">
                 Cell Spell 2.0 &mdash; SLIIT IEEE Biotechnology Society
               </p>
             </td>
@@ -397,7 +498,7 @@ function getWhatsAppCtaHtml() {
     <tr>
       <td class="content-pad" style="padding:0 40px 28px;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
-               style="background-color:#061a0c;border:1px solid rgba(37,211,102,0.30);border-radius:12px;">
+               class="email-wa-card" style="background-color:#061a0c;border:1px solid rgba(37,211,102,0.30);border-radius:12px;">
           <tr>
             <td style="padding:22px 24px;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -447,8 +548,8 @@ function wrapEmail(title, innerRows) {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="color-scheme" content="dark" />
-  <meta name="supported-color-schemes" content="dark" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
   <title>${title}</title>
   <!--[if mso]>
   <noscript>
@@ -464,14 +565,14 @@ function wrapEmail(title, innerRows) {
     body, table, td, p, a, li { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
-    ${getResponsiveStyles()}
+    ${getEmailStyles()}
   </style>
 </head>
-<body style="margin:0;padding:0;width:100%;background-color:${C.bgOuter};font-family:${FONT};-webkit-font-smoothing:antialiased;">
+<body class="email-body" style="margin:0;padding:0;width:100%;background-color:${C.bgOuter};font-family:${FONT};-webkit-font-smoothing:antialiased;">
   <!-- Outer wrapper table — full-width dark background -->
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:${C.bgOuter};">
     <tr>
-      <td align="center" class="email-outer" style="padding:32px 16px;">
+      <td align="center" class="email-outer email-outer-td" style="padding:32px 16px;">
         <!-- Inner container — 600px max -->
         <!--[if (gte mso 9)|(IE)]>
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" align="center"><tr><td>
