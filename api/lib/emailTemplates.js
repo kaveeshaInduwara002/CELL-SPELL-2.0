@@ -354,14 +354,7 @@ function getFooterHtml() {
               </p>
             </td>
           </tr>
-          <tr>
-            <td align="center" style="padding:8px 40px;">
-              <p style="margin:0;font-family:${FONT};font-size:14px;color:${C.textMuted};">
-                Join our WhatsApp group:
-                <a href="https://chat.whatsapp.com/YOUR_LINK" style="color:${C.neon};text-decoration:underline;">Click here</a>
-              </p>
-            </td>
-          </tr>
+
           <!-- Neon divider dot -->
           <tr>
             <td align="center" style="padding:20px 0;">
@@ -384,6 +377,56 @@ function getFooterHtml() {
               <p style="margin:0;font-family:${FONT};font-size:11px;color:rgba(74,122,74,0.6);line-height:1.5;">
                 You received this email because you registered for our event.
               </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  `;
+}
+
+// -------------------------------------------------------
+// WhatsApp Group CTA — Workshop only
+// -------------------------------------------------------
+function getWhatsAppCtaHtml() {
+  const WA_LINK = 'https://chat.whatsapp.com/GedxmaHBym83Fz9ksAAw2j?mode=gi_t';
+  // Inline SVG data URI — no external image load required, works in most clients
+  const waLogoSrc = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%2325D366'/%3E%3Cpath fill='%23fff' d='M16 5.333C10.109 5.333 5.333 10.109 5.333 16c0 1.88.491 3.728 1.426 5.348L5.333 26.667l5.446-1.408A10.594 10.594 0 0 0 16 26.667c5.891 0 10.667-4.776 10.667-10.667S21.891 5.333 16 5.333zm5.34 14.954c-.222.624-.983 1.141-1.676 1.291-.445.096-.993.172-2.884-.619-2.424-1.008-3.987-3.457-4.108-3.618-.116-.16-.978-1.301-.978-2.481 0-1.181.618-1.762.838-2.002.222-.24.482-.3.643-.3l.461.008c.148.006.347-.056.543.414.2.481.681 1.663.741 1.784.06.12.1.262.02.42-.08.16-.12.261-.24.4-.12.14-.252.312-.36.42-.12.119-.245.248-.105.488.14.24.622 1.026 1.337 1.661.919.818 1.694 1.071 1.934 1.19.24.12.38.1.52-.06.14-.16.6-.699.76-.939.16-.24.32-.2.54-.12.22.08 1.397.659 1.637.779.24.12.4.18.46.28.06.1.06.579-.162 1.204z'/%3E%3C/svg%3E`;
+  return `
+    <!-- WHATSAPP GROUP CTA -->
+    <tr>
+      <td class="content-pad" style="padding:0 40px 28px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+               style="background-color:#061a0c;border:1px solid rgba(37,211,102,0.30);border-radius:12px;">
+          <tr>
+            <td style="padding:22px 24px;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td valign="middle" style="vertical-align:middle;padding-right:14px;width:42px;" width="42">
+                    <img src="${waLogoSrc}" width="42" height="42" alt="WhatsApp"
+                         style="display:block;border:0;outline:none;text-decoration:none;border-radius:50%;" />
+                  </td>
+                  <td valign="middle" style="vertical-align:middle;">
+                    <p style="margin:0 0 3px;font-family:${FONT};font-size:12px;font-weight:700;
+                               text-transform:uppercase;letter-spacing:1.3px;color:#25D366;">Stay Connected</p>
+                    <p style="margin:0;font-family:${FONT};font-size:14px;color:#a5d6a7;line-height:1.5;">
+                      Get updates, reminders &amp; announcements directly on WhatsApp.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:18px;">
+                <tr>
+                  <td align="center" style="border-radius:8px;background-color:#25D366;">
+                    <a href="${WA_LINK}" target="_blank"
+                       style="display:inline-block;padding:12px 30px;font-family:${FONT};font-size:15px;
+                              font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;
+                              letter-spacing:0.2px;">
+                      &#x1F4AC;&nbsp; Join our WhatsApp Group
+                    </a>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
         </table>
@@ -486,6 +529,7 @@ export function workshopConfirmationTemplate({
       { icon: '&#x1F4F1;', text: `Save your <strong style="color:${C.textPri};">Registration ID</strong> &mdash; you'll need it at the venue.` },
       { icon: '&#x1F6AB;', text: `Registration is <strong style="color:${C.textPri};">non-transferable</strong>. Contact us for cancellations.` },
     ]),
+    getWhatsAppCtaHtml(),
     getFooterHtml(),
   ].join('');
 
