@@ -4,6 +4,63 @@ import { useAuth } from '../lib/authContext';
 import { supabase } from '../lib/supabaseClient';
 import { CellSpellLogo, CodeIcon, FactoryIcon } from '../components/SVGIcons';
 
+// Sri Lanka timezone constant
+const SL_TIMEZONE = 'Asia/Colombo';
+
+/**
+ * Format a UTC timestamp for display in Sri Lanka time.
+ */
+function formatSLTime(isoString) {
+  if (!isoString) return '—';
+  return new Date(isoString).toLocaleString('en-LK', {
+    timeZone: SL_TIMEZONE,
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+/**
+ * Convert a datetime-local string (no timezone) entered by the admin
+ * to a UTC ISO string, treating the input as Sri Lanka time (+05:30).
+ */
+function slLocalToUTC(datetimeLocalValue) {
+  if (!datetimeLocalValue) return null;
+  // datetime-local gives us "YYYY-MM-DDTHH:mm"
+  // Sri Lanka is UTC+5:30, so subtract 5h30m to get UTC
+  const [datePart, timePart] = datetimeLocalValue.split('T');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute] = timePart.split(':').map(Number);
+  // Build a Date in UTC by subtracting SL offset (5h 30m)
+  const utcMs = Date.UTC(year, month - 1, day, hour - 5, minute - 30);
+  return new Date(utcMs).toISOString();
+}
+
+/**
+ * Convert a UTC ISO string from Supabase to a datetime-local value
+ * string ("YYYY-MM-DDTHH:mm") in Sri Lanka time, for pre-filling the input.
+ */
+function utcToSLLocal(isoString) {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  // Get Sri Lanka components
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: SL_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(d);
+  const get = (type) => parts.find((p) => p.type === type)?.value || '00';
+  const hh = get('hour') === '24' ? '00' : get('hour');
+  return `${get('year')}-${get('month')}-${get('day')}T${hh}:${get('minute')}`;
+}
+
 const FACULTIES = [
   'Faculty of Humanities and Science',
   'Faculty of Engineering',
@@ -191,15 +248,16 @@ export default function AdminDashboardPage() {
   const handleStatusChange = async (formKey, newStatus) => {
     setStatusUpdating(formKey);
     try {
-      const { error } = await supabase.rpc('update_form_config', {
-        p_form_key: formKey,
-        p_status: newStatus,
-        p_scheduled_open_at: null,
-        p_title: null,
-        p_description: null,
-        p_schedule_info: null,
-      });
-      if (error) throw error;
+      // When explicitly opening or closing, clear the scheduled_open_at
+      // We use a direct update here to bypass the COALESCE in the RPC
+      const { error: updateError } = await supabase
+        .from('form_configs')
+        .update({
+          status: newStatus,
+          scheduled_open_at: null,
+        })
+        .eq('form_key', formKey);
+      if (updateError) throw updateError;
       await fetchFormConfigs();
       await fetchStatusLogs();
     } catch (err) {
@@ -223,15 +281,22 @@ export default function AdminDashboardPage() {
           })()
         : null;
 
-      const { error } = await supabase.rpc('update_form_config', {
-        p_form_key: formKey,
-        p_status: 'coming_soon',
-        p_scheduled_open_at: comingSoonForm.scheduled_open_at || null,
-        p_title: comingSoonForm.title || null,
-        p_description: comingSoonForm.description || null,
-        p_schedule_info: scheduleInfoParsed,
-      });
-      if (error) throw error;
+      // Convert the Sri Lanka local datetime input to a proper UTC ISO string
+      const scheduledUTC = slLocalToUTC(comingSoonForm.scheduled_open_at);
+
+      // Use a direct update so all fields (including scheduled_open_at) are set
+      // correctly rather than relying on COALESCE in the RPC which can block clearing
+      const { error: updateError } = await supabase
+        .from('form_configs')
+        .update({
+          status: 'coming_soon',
+          scheduled_open_at: scheduledUTC,
+          title: comingSoonForm.title || null,
+          description: comingSoonForm.description || null,
+          schedule_info: scheduleInfoParsed,
+        })
+        .eq('form_key', formKey);
+      if (updateError) throw updateError;
       await fetchFormConfigs();
       await fetchStatusLogs();
       setShowComingSoonModal(null);
@@ -389,9 +454,7 @@ export default function AdminDashboardPage() {
                 (fe.key === 'workshop' && e.slug === 'workshop') ||
                 (fe.key === 'industry_visit' && e.slug === 'industry-visit')
               )?.count ?? 0;
-              const lastChange = config?.updated_at
-                ? new Date(config.updated_at).toLocaleString()
-                : '—';
+              const lastChange = formatSLTime(config?.updated_at);
 
               return (
                 <div
@@ -442,7 +505,8 @@ export default function AdminDashboardPage() {
                       disabled={status === 'coming_soon' || statusUpdating === fe.key}
                       onClick={() => {
                         setComingSoonForm({
-                          scheduled_open_at: config?.scheduled_open_at ? config.scheduled_open_at.slice(0, 16) : '',
+                          // Convert the stored UTC time back to SL local for the input
+                          scheduled_open_at: utcToSLLocal(config?.scheduled_open_at),
                           title: config?.title || '',
                           description: config?.description || '',
                           schedule_info: config?.schedule_info ? JSON.stringify(config.schedule_info, null, 2) : '',
@@ -501,7 +565,7 @@ export default function AdminDashboardPage() {
                       </span>
                       <span className="activity-log__meta">
                         {log.changed_by && <span>{log.changed_by} · </span>}
-                        {new Date(log.changed_at).toLocaleString()}
+                        {formatSLTime(log.changed_at)}
                       </span>
                     </div>
                   </li>
@@ -728,7 +792,7 @@ export default function AdminDashboardPage() {
 
             <div className="coming-soon-modal__form">
               <div className="cs-modal-field">
-                <label htmlFor="cs-scheduled-at">Scheduled Open Date & Time</label>
+                <label htmlFor="cs-scheduled-at">Scheduled Open Date &amp; Time <span style={{ opacity: 0.6, fontSize: '0.8em' }}>(Sri Lanka Time — UTC+5:30)</span></label>
                 <input
                   type="datetime-local"
                   id="cs-scheduled-at"

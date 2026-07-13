@@ -58,12 +58,14 @@ export default function FormStatusGate({ formKey, children }) {
 
 function ClosedView({ config }) {
   const closedAt = config?.updated_at
-    ? new Date(config.updated_at).toLocaleString(undefined, {
+    ? new Date(config.updated_at).toLocaleString('en-LK', {
+        timeZone: 'Asia/Colombo',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
+        hour12: true,
       })
     : null;
 

@@ -40,9 +40,10 @@ export default function CountdownTimer({ scheduledAt, onComplete }) {
     return () => clearInterval(interval);
   }, [calculateTimeLeft]);
 
-  // Format local time for display
+  // Format open time in Sri Lanka timezone (Asia/Colombo, UTC+5:30)
   const localOpenDate = scheduledAt
-    ? new Date(scheduledAt).toLocaleString(undefined, {
+    ? new Date(scheduledAt).toLocaleString('en-LK', {
+        timeZone: 'Asia/Colombo',
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -50,6 +51,7 @@ export default function CountdownTimer({ scheduledAt, onComplete }) {
         hour: '2-digit',
         minute: '2-digit',
         timeZoneName: 'short',
+        hour12: true,
       })
     : null;
 
