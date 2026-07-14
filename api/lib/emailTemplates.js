@@ -214,12 +214,6 @@ function getHeaderHtml(eventEmoji, eventTitle, eventSubtitle) {
               </p>
             </td>
           </tr>
-          <!-- DNA helix divider -->
-          <tr>
-            <td align="center" style="padding-top:24px;">
-              ${dnaDividerSvg()}
-            </td>
-          </tr>
         </table>
       </td>
     </tr>
@@ -441,12 +435,6 @@ function getFooterHtml() {
         </table>
 
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-          <tr>
-            <td align="center" style="padding:28px 40px 16px;">
-              <!-- DNA divider -->
-              ${dnaDividerSvg()}
-            </td>
-          </tr>
           <tr>
             <td align="center" style="padding:4px 40px;">
               <p class="c-text-muted" style="margin:0 0 4px;font-family:${FONT};font-size:14px;color:${C.textMuted};line-height:1.5;">
