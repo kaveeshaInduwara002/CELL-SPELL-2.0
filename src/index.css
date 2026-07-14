@@ -2318,6 +2318,13 @@ input[name="sliit_reg_number"] {
 .btn-whatsapp:active {
   transform: translateY(-1px) scale(0.99);
 }
+.wa-group-hint {
+  margin: 10px 0 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  text-align: center;
+}
 
 /* Floating Geometric Shapes */
 .success-floating-shapes {

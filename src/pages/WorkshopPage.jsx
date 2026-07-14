@@ -34,8 +34,8 @@ export default function WorkshopPage() {
                 subtitle="Fill in your details to register for the Bioinformatics Workshop"
                 eventPrefix="W"
                 eventName="Bioinformatics Workshop"
-                eventDate="Coming Soon"
-                eventVenue="University Main Auditorium"
+                eventDate="TBA - To be announced"
+                eventVenue="TBA - To be announced"
                 eventDetails="Explore the intersection of biology and computing. Learn essential bioinformatics software, then compete in an exciting challenge. Certificates will be awarded to winners."
               />
             </div>
