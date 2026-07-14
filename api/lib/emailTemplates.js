@@ -473,7 +473,7 @@ function getFooterHtml() {
           <tr>
             <td align="center" style="padding:0 40px;">
               <p class="c-text-dim" style="margin:0;font-family:${FONT};font-size:12px;color:${C.textDim};line-height:1.5;">
-                Cell Spell 2.0 &mdash; SLIIT IEEE Biotechnology Society
+                Cell Spell 2.0 &mdash; SLIIT IEEE EMBS chapter
               </p>
             </td>
           </tr>
@@ -639,7 +639,7 @@ export function workshopConfirmationTemplate({
       { icon: '&#x1F4BB;', text: `Bring a <strong style="color:${C.textPri};">laptop</strong> for the hands-on sessions (charger recommended).` },
       { icon: '&#x23F0;', text: `Arrive <strong style="color:${C.textPri};">15 minutes early</strong> for registration and seating.` },
       { icon: '&#x1F4F1;', text: `Save your <strong style="color:${C.textPri};">Registration ID</strong> &mdash; you'll need it at the venue.` },
-      { icon: '&#x1F6AB;', text: `Registration is <strong style="color:${C.textPri};">non-transferable</strong>. Contact us for cancellations.` },
+      { icon: '&#x26A0;&#xFE0F;', text: `Joining the <strong style="color:${C.textPri};">WhatsApp group is mandatory</strong> for all future updates.` },
     ]),
     getFooterHtml(),
   ].join('');
