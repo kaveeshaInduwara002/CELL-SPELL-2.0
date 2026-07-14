@@ -34,8 +34,8 @@ export default function IndustryVisitPage() {
                 subtitle="Fill in your details to register for the Industry Visit"
                 eventPrefix="S"
                 eventName="Industry Visit"
-                eventDate="TBA - To be announced"
-                eventVenue="TBA"
+                eventDate="To be Announced"
+                eventVenue="To be Announced"
                 eventDetails="Get an exclusive behind-the-scenes look at leading biotech and pharmaceutical companies. Networking opportunities with industry professionals included."
               />
             </div>

@@ -68,8 +68,8 @@ export default function RegistrationForm({
   subtitle,
   eventPrefix = 'W',
   eventName = '',
-  eventDate = 'TBA',
-  eventVenue = 'TBA',
+  eventDate = 'To be Announced',
+  eventVenue = 'To be Announced',
   eventDetails = '',
 }) {
   const navigate = useNavigate();

@@ -609,8 +609,8 @@ export function workshopConfirmationTemplate({
   faculty,
   yearSemester,
 }) {
-  const eventDate = 'To be announced';
-  const eventVenue = 'TBA - To be announced';
+  const eventDate = 'To be Announced';
+  const eventVenue = 'To be Announced';
 
   const innerRows = [
     getHeaderHtml(

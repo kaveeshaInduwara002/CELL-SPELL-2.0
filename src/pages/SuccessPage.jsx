@@ -142,8 +142,8 @@ export default function SuccessPage() {
     registrationId = registrationRef || 'RW001',
     fullName = 'Student',
     eventName = 'Event',
-    eventDate = 'TBA',
-    eventVenue = 'TBA',
+    eventDate = 'To be Announced',
+    eventVenue = 'To be Announced',
     eventDetails = 'More details will be shared via email.',
     eventPrefix = 'W',
   } = state || {
