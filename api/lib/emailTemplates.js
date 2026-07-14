@@ -18,8 +18,25 @@
 // -------------------------------------------------------
 // Color palette (matches site CSS custom properties)
 // -------------------------------------------------------
-// Dark theme palette (used as hardcoded inline styles — the base render)
+// Light theme palette (used as hardcoded inline styles — the base render)
 const C = {
+  bgOuter:    '#eef2ee',
+  bgInner:    '#ffffff',
+  bgCard:     '#f8faf8',
+  bgSurface:  '#edf5ed',
+  neon:       '#18a300',  // darkened neon green — readable on white
+  neonBorder: 'rgba(24,163,0,0.25)',
+  neonFaint:  'rgba(24,163,0,0.10)',
+  textPri:    '#1a2e1a',
+  textSec:    '#2e5c2e',
+  textMuted:  '#3a7a3a',
+  textDim:    '#5a8a5a',
+  success:    '#16a34a',
+  white:      '#ffffff',
+};
+
+// Dark theme palette (applied via @media (prefers-color-scheme: dark) in <style>)
+const CD = {
   bgOuter:    '#050a05',  // --bg-deep
   bgInner:    '#0a120a',  // --bg-dark
   bgCard:     '#0d1a0d',  // --bg-card
@@ -35,24 +52,6 @@ const C = {
   textMuted:  '#66bb6a',  // --text-muted
   textDim:    '#4a7a4a',  // --text-dim
   success:    '#4ade80',  // --success
-  white:      '#ffffff',
-};
-
-// Light theme palette (applied via @media (prefers-color-scheme: light) in <style>)
-// Neon green is darkened for legibility on white backgrounds.
-const CL = {
-  bgOuter:    '#eef2ee',
-  bgInner:    '#ffffff',
-  bgCard:     '#f8faf8',
-  bgSurface:  '#edf5ed',
-  neon:       '#18a300',  // darkened neon green — readable on white
-  neonBorder: 'rgba(24,163,0,0.25)',
-  neonFaint:  'rgba(24,163,0,0.10)',
-  textPri:    '#1a2e1a',
-  textSec:    '#2e5c2e',
-  textMuted:  '#3a7a3a',
-  textDim:    '#5a8a5a',
-  success:    '#16a34a',
   white:      '#ffffff',
 };
 
@@ -81,10 +80,32 @@ function getEmailStyles() {
 
     /* =====================================================
        DARK MODE
-       Lock in the dark palette — prevents mail clients
-       from auto-inverting our already-dark email.
+       Lock in the dark palette — overrides the default inline light styles
        ===================================================== */
     @media (prefers-color-scheme: dark) {
+      body, .email-body          { background-color: ${CD.bgOuter} !important; color: ${CD.textPri} !important; }
+      .email-outer-td            { background-color: ${CD.bgOuter} !important; }
+      .email-inner               { background-color: ${CD.bgInner} !important; border-color: ${CD.neonBorder} !important; }
+      .email-header              { background-color: ${CD.bgCard} !important; border-bottom-color: ${CD.neonBorder} !important; }
+      .email-card                { background-color: ${CD.bgCard} !important; border-color: ${CD.neonBorder} !important; }
+      .email-card-faint          { background-color: ${CD.bgCard} !important; border-color: ${CD.neonFaint} !important; }
+      .email-surface             { background-color: ${CD.bgSurface} !important; border-color: ${CD.neonBorder} !important; }
+      .email-wa-card             { background-color: #061a0c !important; border-color: rgba(37,211,102,0.30) !important; }
+      .email-icon-cell           { background-color: ${CD.bgSurface} !important; border-color: ${CD.neonFaint} !important; }
+      .email-reg-id-badge        { background-color: ${CD.bgSurface} !important; border-color: ${CD.neon} !important; }
+      .c-neon                    { color: ${CD.neon} !important; }
+      .c-text-pri                { color: ${CD.textPri} !important; }
+      .c-text-sec                { color: ${CD.textSec} !important; }
+      .c-text-muted              { color: ${CD.textMuted} !important; }
+      .c-text-dim                { color: ${CD.textDim} !important; }
+      .c-success                 { color: ${CD.success} !important; }
+    }
+
+    /* =====================================================
+       LIGHT MODE
+       Fallback explicit override (base is already light).
+       ===================================================== */
+    @media (prefers-color-scheme: light) {
       body, .email-body          { background-color: ${C.bgOuter} !important; color: ${C.textPri} !important; }
       .email-outer-td            { background-color: ${C.bgOuter} !important; }
       .email-inner               { background-color: ${C.bgInner} !important; border-color: ${C.neonBorder} !important; }
@@ -92,7 +113,7 @@ function getEmailStyles() {
       .email-card                { background-color: ${C.bgCard} !important; border-color: ${C.neonBorder} !important; }
       .email-card-faint          { background-color: ${C.bgCard} !important; border-color: ${C.neonFaint} !important; }
       .email-surface             { background-color: ${C.bgSurface} !important; border-color: ${C.neonBorder} !important; }
-      .email-wa-card             { background-color: #061a0c !important; border-color: rgba(37,211,102,0.30) !important; }
+      .email-wa-card             { background-color: #e8f5e9 !important; border-color: rgba(37,211,102,0.40) !important; }
       .email-icon-cell           { background-color: ${C.bgSurface} !important; border-color: ${C.neonFaint} !important; }
       .email-reg-id-badge        { background-color: ${C.bgSurface} !important; border-color: ${C.neon} !important; }
       .c-neon                    { color: ${C.neon} !important; }
@@ -104,59 +125,34 @@ function getEmailStyles() {
     }
 
     /* =====================================================
-       LIGHT MODE
-       Override inline dark styles with light palette.
-       ===================================================== */
-    @media (prefers-color-scheme: light) {
-      body, .email-body          { background-color: ${CL.bgOuter} !important; color: ${CL.textPri} !important; }
-      .email-outer-td            { background-color: ${CL.bgOuter} !important; }
-      .email-inner               { background-color: ${CL.bgInner} !important; border-color: ${CL.neonBorder} !important; }
-      .email-header              { background-color: ${CL.bgCard} !important; border-bottom-color: ${CL.neonBorder} !important; }
-      .email-card                { background-color: ${CL.bgCard} !important; border-color: ${CL.neonBorder} !important; }
-      .email-card-faint          { background-color: ${CL.bgCard} !important; border-color: ${CL.neonFaint} !important; }
-      .email-surface             { background-color: ${CL.bgSurface} !important; border-color: ${CL.neonBorder} !important; }
-      .email-wa-card             { background-color: #e8f5e9 !important; border-color: rgba(37,211,102,0.40) !important; }
-      .email-icon-cell           { background-color: ${CL.bgSurface} !important; border-color: ${CL.neonFaint} !important; }
-      .email-reg-id-badge        { background-color: ${CL.bgSurface} !important; border-color: ${CL.neon} !important; }
-      .c-neon                    { color: ${CL.neon} !important; }
-      .c-text-pri                { color: ${CL.textPri} !important; }
-      .c-text-sec                { color: ${CL.textSec} !important; }
-      .c-text-muted              { color: ${CL.textMuted} !important; }
-      .c-text-dim                { color: ${CL.textDim} !important; }
-      .c-success                 { color: ${CL.success} !important; }
-    }
-
-    /* =====================================================
        OUTLOOK / GMAIL DARK MODE FORCED-INVERSION GUARD
        [data-ogsc] = Outlook dark mode
        [data-ogsb] = Outlook dark mode (body bg)
-       These prevent Outlook/Gmail from re-inverting our
-       already-correct dark email for dark-mode users.
        ===================================================== */
     [data-ogsc] body, [data-ogsc] .email-body,
-    [data-ogsb] body, [data-ogsb] .email-body   { background-color: ${C.bgOuter} !important; color: ${C.textPri} !important; }
+    [data-ogsb] body, [data-ogsb] .email-body   { background-color: ${CD.bgOuter} !important; color: ${CD.textPri} !important; }
     [data-ogsc] .email-outer-td,
-    [data-ogsb] .email-outer-td                 { background-color: ${C.bgOuter} !important; }
+    [data-ogsb] .email-outer-td                 { background-color: ${CD.bgOuter} !important; }
     [data-ogsc] .email-inner,
-    [data-ogsb] .email-inner                    { background-color: ${C.bgInner} !important; border-color: ${C.neonBorder} !important; }
+    [data-ogsb] .email-inner                    { background-color: ${CD.bgInner} !important; border-color: ${CD.neonBorder} !important; }
     [data-ogsc] .email-header,
-    [data-ogsb] .email-header                   { background-color: ${C.bgCard} !important; border-bottom-color: ${C.neonBorder} !important; }
+    [data-ogsb] .email-header                   { background-color: ${CD.bgCard} !important; border-bottom-color: ${CD.neonBorder} !important; }
     [data-ogsc] .email-card,
-    [data-ogsb] .email-card                     { background-color: ${C.bgCard} !important; border-color: ${C.neonBorder} !important; }
+    [data-ogsb] .email-card                     { background-color: ${CD.bgCard} !important; border-color: ${CD.neonBorder} !important; }
     [data-ogsc] .email-card-faint,
-    [data-ogsb] .email-card-faint               { background-color: ${C.bgCard} !important; border-color: ${C.neonFaint} !important; }
+    [data-ogsb] .email-card-faint               { background-color: ${CD.bgCard} !important; border-color: ${CD.neonFaint} !important; }
     [data-ogsc] .email-surface,
-    [data-ogsb] .email-surface                  { background-color: ${C.bgSurface} !important; border-color: ${C.neonBorder} !important; }
+    [data-ogsb] .email-surface                  { background-color: ${CD.bgSurface} !important; border-color: ${CD.neonBorder} !important; }
     [data-ogsc] .email-reg-id-badge,
-    [data-ogsb] .email-reg-id-badge             { background-color: ${C.bgSurface} !important; border-color: ${C.neon} !important; }
+    [data-ogsb] .email-reg-id-badge             { background-color: ${CD.bgSurface} !important; border-color: ${CD.neon} !important; }
     [data-ogsc] .email-icon-cell,
-    [data-ogsb] .email-icon-cell                { background-color: ${C.bgSurface} !important; border-color: ${C.neonFaint} !important; }
-    [data-ogsc] .c-neon, [data-ogsb] .c-neon   { color: ${C.neon} !important; }
-    [data-ogsc] .c-text-pri, [data-ogsb] .c-text-pri   { color: ${C.textPri} !important; }
-    [data-ogsc] .c-text-sec, [data-ogsb] .c-text-sec   { color: ${C.textSec} !important; }
-    [data-ogsc] .c-text-muted, [data-ogsb] .c-text-muted { color: ${C.textMuted} !important; }
-    [data-ogsc] .c-text-dim, [data-ogsb] .c-text-dim   { color: ${C.textDim} !important; }
-    [data-ogsc] .c-success, [data-ogsb] .c-success     { color: ${C.success} !important; }
+    [data-ogsb] .email-icon-cell                { background-color: ${CD.bgSurface} !important; border-color: ${CD.neonFaint} !important; }
+    [data-ogsc] .c-neon, [data-ogsb] .c-neon   { color: ${CD.neon} !important; }
+    [data-ogsc] .c-text-pri, [data-ogsb] .c-text-pri   { color: ${CD.textPri} !important; }
+    [data-ogsc] .c-text-sec, [data-ogsb] .c-text-sec   { color: ${CD.textSec} !important; }
+    [data-ogsc] .c-text-muted, [data-ogsb] .c-text-muted { color: ${CD.textMuted} !important; }
+    [data-ogsc] .c-text-dim, [data-ogsb] .c-text-dim   { color: ${CD.textDim} !important; }
+    [data-ogsc] .c-success, [data-ogsb] .c-success     { color: ${CD.success} !important; }
   `;
 }
 
