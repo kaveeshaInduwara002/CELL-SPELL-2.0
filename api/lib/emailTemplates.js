@@ -449,9 +449,13 @@ function getFooterHtml() {
           </tr>
           <tr>
             <td align="center" style="padding:4px 40px;">
-              <p class="c-text-muted" style="margin:0;font-family:${FONT};font-size:14px;color:${C.textMuted};line-height:1.5;">
+              <p class="c-text-muted" style="margin:0 0 4px;font-family:${FONT};font-size:14px;color:${C.textMuted};line-height:1.5;">
                 Questions? Reach out at
                 <a href="mailto:cellspell2@gmail.com" class="c-neon" style="color:${C.neon};text-decoration:underline;">cellspell2@gmail.com</a>
+              </p>
+              <p class="c-text-muted" style="margin:0;font-family:${FONT};font-size:13px;color:${C.textMuted};line-height:1.5;">
+                Inquiries: <span class="c-text-sec" style="color:${C.textSec};">Savindya (Chairperson)</span>
+                &mdash; <a href="tel:+94772883189" class="c-neon" style="color:${C.neon};text-decoration:none;">077 288 3189</a>
               </p>
             </td>
           </tr>
