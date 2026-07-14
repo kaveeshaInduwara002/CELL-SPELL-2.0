@@ -455,16 +455,9 @@ function getFooterHtml() {
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding:0 40px;">
+            <td align="center" style="padding:0 40px 32px;">
               <p class="c-text-dim" style="margin:0;font-family:${FONT};font-size:12px;color:${C.textDim};line-height:1.5;">
-                Cell Spell 2.0 &mdash; SLIIT IEEE EMBS chapter
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td align="center" style="padding:6px 40px 32px;">
-              <p style="margin:0;font-family:${FONT};font-size:11px;color:rgba(74,122,74,0.6);line-height:1.5;">
-                You received this email because you registered for our event.
+                Cell Spell 2.0 &mdash; SLIIT IEEE EMBS Chapter
               </p>
             </td>
           </tr>
