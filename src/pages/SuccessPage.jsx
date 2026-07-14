@@ -138,16 +138,21 @@ export default function SuccessPage() {
 
   if (!hasFullState && !registrationRef) return null;
 
+  const targetId = state?.registrationId || registrationRef || 'RW001';
+  const isWorkshop = targetId.startsWith('RW');
+
   const {
-    registrationId = registrationRef || 'RW001',
+    registrationId = targetId,
     fullName = 'Student',
-    eventName = 'Event',
+    eventName = isWorkshop ? 'Bioinformatics Workshop' : 'Industry Visit',
     eventDate = 'To be Announced',
     eventVenue = 'To be Announced',
-    eventDetails = 'More details will be shared via email.',
-    eventPrefix = 'W',
+    eventDetails = isWorkshop
+      ? 'Explore the intersection of biology and computing. Learn essential bioinformatics software, then compete in an exciting challenge. Certificates will be awarded to winners.'
+      : 'Get an exclusive behind-the-scenes look at leading biotech and pharmaceutical companies. Networking opportunities with industry professionals included.',
+    eventPrefix = isWorkshop ? 'W' : 'S',
   } = state || {
-    registrationId: registrationRef,
+    registrationId: targetId,
   };
 
   const { prefix, num } = parseRegNumber(registrationId);
@@ -169,18 +174,12 @@ export default function SuccessPage() {
               </p>
             </SuccessCard>
 
-            {/* Card 2: Registration Number */}
-            <SuccessCard delay={2} className="success-reg-card">
-              <div className="success-card-icon">
-                <AnimatedTicketIcon size={52} />
-              </div>
-              <div className="success-card-label">Your Registration Number</div>
-              <CountUpRegNumber prefix={prefix} targetNum={num} />
-            </SuccessCard>
-
-            {/* WhatsApp Group Button — directly below Registration Number */}
+            {/* WhatsApp Group Button — directly between Success Card and Registration Number Card */}
             {eventPrefix === 'W' && (
-              <div className="success-card stagger-3" style={{ textAlign: 'center', background: 'none', border: 'none', boxShadow: 'none', backdropFilter: 'none', WebkitBackdropFilter: 'none' }}>
+              <SuccessCard
+                delay={2}
+                style={{ textAlign: 'center', background: 'none', border: 'none', boxShadow: 'none', backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
+              >
                 <a
                   href="https://chat.whatsapp.com/GedxmaHBym83Fz9ksAAw2j?mode=gi_t"
                   target="_blank"
@@ -194,7 +193,7 @@ export default function SuccessPage() {
                     width="20"
                     height="20"
                     viewBox="0 0 32 32"
-                    fill="#ffffff"
+                    fill="currentColor"
                     aria-hidden="true"
                   >
                     <path d="M16.002 2.667C8.636 2.667 2.667 8.636 2.667 16c0 2.37.633 4.687 1.833 6.714L2.667 29.333l6.807-1.787A13.268 13.268 0 0 0 16.002 29.333c7.364 0 13.331-5.969 13.331-13.333 0-7.364-5.967-13.333-13.331-13.333zm0 24.223a11.24 11.24 0 0 1-5.74-1.574l-.411-.244-4.038 1.059 1.078-3.93-.267-.404A11.198 11.198 0 0 1 4.782 16c0-6.185 5.034-11.22 11.22-11.22 6.187 0 11.22 5.035 11.22 11.22 0 6.186-5.033 11.22-11.22 11.22zm6.15-8.4c-.337-.169-1.994-.984-2.303-1.096-.308-.113-.533-.169-.757.169-.225.337-.869 1.096-1.066 1.321-.196.225-.392.253-.729.084-.337-.169-1.422-.524-2.708-1.672-.999-.892-1.674-1.993-1.871-2.33-.196-.337-.021-.52.148-.688.152-.151.337-.393.506-.589.168-.196.225-.337.337-.562.113-.225.057-.422-.028-.591-.084-.169-.757-1.825-1.037-2.499-.273-.656-.55-.567-.757-.578l-.645-.011c-.225 0-.589.084-.898.422-.308.337-1.178 1.152-1.178 2.808 0 1.655 1.206 3.255 1.374 3.48.169.225 2.374 3.624 5.752 5.083.804.347 1.431.554 1.921.709.807.256 1.542.22 2.122.133.647-.097 1.994-.815 2.275-1.603.281-.787.281-1.462.196-1.603-.084-.14-.308-.225-.645-.393z"/>
@@ -202,8 +201,17 @@ export default function SuccessPage() {
                   <span>Join our WhatsApp Group</span>
                 </a>
                 <p className="wa-group-hint">Join WhatsApp group for Future Updates</p>
-              </div>
+              </SuccessCard>
             )}
+
+            {/* Card 2: Registration Number */}
+            <SuccessCard delay={3} className="success-reg-card">
+              <div className="success-card-icon">
+                <AnimatedTicketIcon size={52} />
+              </div>
+              <div className="success-card-label">Your Registration Number</div>
+              <CountUpRegNumber prefix={prefix} targetNum={num} />
+            </SuccessCard>
 
             {/* Card 3: Event Date */}
             <SuccessCard delay={4}>
@@ -235,13 +243,13 @@ export default function SuccessPage() {
             </SuccessCard>
 
             {/* Close Portal Button */}
-            <div className="success-card stagger-7">
+            <SuccessCard delay={7} style={{ background: 'none', border: 'none', boxShadow: 'none', backdropFilter: 'none', WebkitBackdropFilter: 'none', textAlign: 'center' }}>
               <Link to="/" className="btn btn-close-portal" id="close-portal-btn">
                 <span className="close-portal-ripple" />
                 <AnimatedDoorIcon size={22} />
                 <span>Close Portal</span>
               </Link>
-            </div>
+            </SuccessCard>
           </div>
         </div>
       </section>
@@ -250,7 +258,7 @@ export default function SuccessPage() {
 }
 
 // Stagger-animated card wrapper
-function SuccessCard({ children, delay = 1, className = '' }) {
+function SuccessCard({ children, delay = 1, className = '', style = {} }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -263,6 +271,7 @@ function SuccessCard({ children, delay = 1, className = '' }) {
     <div
       ref={ref}
       className={`success-card stagger-${delay} ${visible ? 'stagger-visible' : ''} ${className}`}
+      style={style}
     >
       {children}
     </div>

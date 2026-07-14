@@ -2181,16 +2181,8 @@ input[name="sliit_reg_number"] {
 .stagger-3 { transition-delay: 0.8s; }
 .stagger-4 { transition-delay: 1.15s; }
 .stagger-5 { transition-delay: 1.5s; }
-.stagger-6 {
-  transition-delay: 1.85s;
-  background: none; border: none; box-shadow: none;
-  backdrop-filter: none; -webkit-backdrop-filter: none;
-  opacity: 0; transform: translateY(20px);
-  animation: staggerFadeIn 0.7s var(--ease-out-expo) 2.2s forwards;
-}
-@keyframes staggerFadeIn {
-  to { opacity: 1; transform: translateY(0); }
-}
+.stagger-6 { transition-delay: 1.85s; }
+.stagger-7 { transition-delay: 2.2s; }
 
 /* Card hover */
 .success-card:hover {
@@ -2300,30 +2292,60 @@ input[name="sliit_reg_number"] {
 
 /* WhatsApp Group Button */
 .btn-whatsapp {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 14px 36px; border-radius: var(--radius-full);
-  background-color: #25D366;
-  color: #ffffff; font-size: 1.05rem; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 15px 40px; border-radius: var(--radius-md);
+  background: rgba(57, 255, 20, 0.05);
+  border: 1.5px solid var(--border-glow);
+  color: var(--neon-green); font-size: 1.05rem; font-weight: 700;
   text-decoration: none; cursor: pointer;
-  box-shadow: 0 4px 24px rgba(37, 211, 102, 0.30);
-  transition: all 0.35s var(--ease-out-expo);
-  border: none; outline: none;
+  outline: none;
+  text-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+  box-shadow: 0 4px 20px rgba(57, 255, 20, 0.05);
+  animation: waPulse 2.5s infinite;
+  transition: all 0.4s var(--ease-out-expo);
+  position: relative;
+  overflow: hidden;
+}
+.btn-whatsapp::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+.btn-whatsapp:hover::before {
+  transform: translateX(100%);
 }
 .btn-whatsapp:hover {
   transform: translateY(-3px) scale(1.02);
-  background-color: #1ebe5d;
-  box-shadow: 0 8px 36px rgba(37, 211, 102, 0.50);
-  color: #ffffff;
+  background: rgba(57, 255, 20, 0.15);
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  text-shadow: 0 0 15px rgba(57, 255, 20, 0.8), 0 0 30px rgba(57, 255, 20, 0.4);
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.35);
+  animation: none;
 }
 .btn-whatsapp:active {
   transform: translateY(-1px) scale(0.99);
 }
+@keyframes waPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4), 0 4px 20px rgba(57, 255, 20, 0.05);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(57, 255, 20, 0), 0 4px 20px rgba(57, 255, 20, 0.05);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(57, 255, 20, 0), 0 4px 20px rgba(57, 255, 20, 0.05);
+  }
+}
 .wa-group-hint {
-  margin: 10px 0 0;
-  font-size: 0.76rem;
+  margin: 12px 0 0;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
   text-align: center;
+  font-weight: 500;
 }
 
 /* Floating Geometric Shapes */
